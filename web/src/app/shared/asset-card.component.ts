@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SeverityBadgeComponent } from './severity-badge.component';
 import type { Alert, Asset, TelemetryReading } from '../core/types';
@@ -7,7 +8,7 @@ import type { Alert, Asset, TelemetryReading } from '../core/types';
   selector: 'gs-asset-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, SeverityBadgeComponent],
+  imports: [DecimalPipe, RouterLink, SeverityBadgeComponent],
   template: `
     <a class="card" [routerLink]="['/assets', asset().id]">
       <header>

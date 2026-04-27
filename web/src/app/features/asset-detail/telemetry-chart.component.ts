@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import type { TelemetryReading } from '../../core/types';
 
 interface Series {
@@ -14,6 +15,7 @@ interface Series {
   selector: 'gs-telemetry-chart',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DecimalPipe],
   template: `
     @let s = series();
     @let v = latest();

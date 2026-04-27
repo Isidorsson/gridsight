@@ -33,7 +33,8 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
       <div class="loading"><mat-progress-spinner diameter="36" mode="indeterminate" /></div>
     } @else if (error()) {
       <gs-empty-state icon="error_outline" title="Asset not found" [description]="error()!" />
-    } @else if (asset(); as a) {
+    }
+    @if (asset(); as a) {
       <header class="hero">
         <div>
           <h1>{{ a.name }}</h1>
