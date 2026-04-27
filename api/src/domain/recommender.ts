@@ -162,9 +162,7 @@ async function callClaude(
   const response = await anthropicClient.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
-    system: [
-      { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
-    ],
+    system: SYSTEM_PROMPT,
     tools: [TOOL_SCHEMA],
     tool_choice: { type: 'tool', name: 'emit_recommendation' },
     messages: [{ role: 'user', content: userMessage }],
