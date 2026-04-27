@@ -15,27 +15,32 @@ interface Series {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    @let s = series();
+    @let v = latest();
+    @let alarmY = s.alarm !== undefined ? yFor(s.alarm) : null;
+    @let warnY = s.warn !== undefined ? yFor(s.warn) : null;
+    @let p = path();
     <figure class="chart" role="img" [attr.aria-label]="ariaLabel()">
       <figcaption>
-        <span class="title">{{ series().label }}</span>
-        @if (latest() !== null) {
-          <span class="value">{{ latest() | number: '1.0-2' }} {{ series().unit }}</span>
+        <span class="title">{{ s.label }}</span>
+        @if (v !== null) {
+          <span class="value">{{ v | number: '1.0-2' }} {{ s.unit }}</span>
         }
       </figcaption>
       <svg viewBox="0 0 600 140" preserveAspectRatio="none">
-        @if (series().alarm !== undefined) {
+        @if (alarmY !== null) {
           <line [attr.x1]="0" [attr.x2]="600"
-                [attr.y1]="yFor(series().alarm!)" [attr.y2]="yFor(series().alarm!)"
+                [attr.y1]="alarmY" [attr.y2]="alarmY"
                 stroke="var(--gs-high)" stroke-width="1" stroke-dasharray="4 4" opacity="0.7" />
         }
-        @if (series().warn !== undefined) {
+        @if (warnY !== null) {
           <line [attr.x1]="0" [attr.x2]="600"
-                [attr.y1]="yFor(series().warn!)" [attr.y2]="yFor(series().warn!)"
+                [attr.y1]="warnY" [attr.y2]="warnY"
                 stroke="var(--gs-medium)" stroke-width="1" stroke-dasharray="4 4" opacity="0.5" />
         }
-        @if (path()) {
-          <path [attr.d]="path()" fill="none" [attr.stroke]="series().color" stroke-width="1.6" stroke-linejoin="round" />
-          <path [attr.d]="areaPath()" [attr.fill]="series().color" opacity="0.08" />
+        @if (p) {
+          <path [attr.d]="p" fill="none" [attr.stroke]="s.color" stroke-width="1.6" stroke-linejoin="round" />
+          <path [attr.d]="areaPath()" [attr.fill]="s.color" opacity="0.08" />
         }
       </svg>
     </figure>
