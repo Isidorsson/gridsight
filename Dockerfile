@@ -4,7 +4,7 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY api/package*.json ./
-RUN npm ci
+RUN npm install --no-audit --no-fund
 COPY api/tsconfig.json ./
 COPY api/scripts ./scripts
 COPY api/src ./src
@@ -14,7 +14,7 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 COPY api/package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 COPY --from=build /app/dist ./dist
 EXPOSE 3000
 USER node
