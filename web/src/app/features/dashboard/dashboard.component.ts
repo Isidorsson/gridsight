@@ -295,7 +295,7 @@ type FilterMode = 'all' | 'with_alerts';
 })
 export class DashboardComponent {
   private readonly api = inject(ApiService);
-  private readonly sse = inject(SseService);
+  protected readonly sse = inject(SseService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly assets = signal<Asset[]>([]);
