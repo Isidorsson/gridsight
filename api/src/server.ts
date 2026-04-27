@@ -39,10 +39,13 @@ export function buildApp(): express.Express {
       crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
+  const corsOrigin = env.CORS_ORIGIN.trim() === '*'
+    ? true
+    : env.CORS_ORIGIN.split(',').map((o) => o.trim());
   app.use(
     cors({
-      origin: env.CORS_ORIGIN.split(',').map((o) => o.trim()),
-      credentials: true,
+      origin: corsOrigin,
+      credentials: corsOrigin !== true,
     }),
   );
   app.use(compression());
