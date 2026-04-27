@@ -114,16 +114,30 @@ export function buildApp(): express.Express {
 }
 
 export async function start(): Promise<void> {
-  seedDatabase();
+  console.log('[start] begin: seedDatabase()');
+  try {
+    seedDatabase();
+    console.log('[start] seedDatabase() ok');
+  } catch (err) {
+    console.error('[start] seedDatabase() FAILED:', err);
+    throw err;
+  }
 
   const app = buildApp();
+
+  console.log(`[server] about to call app.listen on port ${env.PORT}...`);
   // Bind to '::' (IPv6 wildcard) — Railway's healthcheck originates over IPv6.
   // On Linux, '::' also accepts IPv4 connections via IPv4-mapped IPv6 addresses.
   const server = app.listen(env.PORT, '::', () => {
+    console.log(`[server] LISTENING on [::]:${env.PORT}`);
     logger.info(
       { port: env.PORT, host: '::', env: env.NODE_ENV, llm: env.ANTHROPIC_API_KEY ? 'live' : 'fixture' },
       'gridsight-api listening',
     );
+  });
+
+  server.on('error', (err) => {
+    console.error('[server] listen error:', err);
   });
 
   startSimulator(listAssets);

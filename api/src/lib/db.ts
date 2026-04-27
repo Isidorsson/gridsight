@@ -47,6 +47,11 @@ export function runMigrations(): void {
   }
 }
 
+// Run migrations at import time so any module that imports `db` (and prepares
+// statements at top level — e.g. simulator.ts) finds all tables already present.
+// Domain seeding stays in seedDatabase() because it's idempotent and called from start().
+runMigrations();
+
 export function closeDb(): void {
   if (db.open) db.close();
 }

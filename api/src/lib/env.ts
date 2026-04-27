@@ -1,12 +1,23 @@
 import { z } from 'zod';
 
+const trimmed = (schema: z.ZodString) => z.preprocess((v) => (typeof v === 'string' ? v.trim() : v), schema);
+
 const EnvSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
-  DATABASE_URL: z.string().min(1).default('./gridsight.db'),
-  CORS_ORIGIN: z.string().min(1).default('http://localhost:4200'),
-  ANTHROPIC_API_KEY: z.string().optional(),
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  LOG_LEVEL: z.preprocess(
+    (v) => (typeof v === 'string' ? v.trim() : v),
+    z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  ),
+  DATABASE_URL: trimmed(z.string().min(1)).default('./gridsight.db'),
+  CORS_ORIGIN: trimmed(z.string().min(1)).default('http://localhost:4200'),
+  ANTHROPIC_API_KEY: z.preprocess(
+    (v) => (typeof v === 'string' ? v.trim() || undefined : v),
+    z.string().optional(),
+  ),
+  NODE_ENV: z.preprocess(
+    (v) => (typeof v === 'string' ? v.trim() : v),
+    z.enum(['development', 'production', 'test']).default('development'),
+  ),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
