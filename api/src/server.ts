@@ -117,9 +117,11 @@ export async function start(): Promise<void> {
   seedDatabase();
 
   const app = buildApp();
-  const server = app.listen(env.PORT, '0.0.0.0', () => {
+  // Bind to '::' (IPv6 wildcard) — Railway's healthcheck originates over IPv6.
+  // On Linux, '::' also accepts IPv4 connections via IPv4-mapped IPv6 addresses.
+  const server = app.listen(env.PORT, '::', () => {
     logger.info(
-      { port: env.PORT, host: '0.0.0.0', env: env.NODE_ENV, llm: env.ANTHROPIC_API_KEY ? 'live' : 'fixture' },
+      { port: env.PORT, host: '::', env: env.NODE_ENV, llm: env.ANTHROPIC_API_KEY ? 'live' : 'fixture' },
       'gridsight-api listening',
     );
   });
