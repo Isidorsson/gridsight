@@ -117,9 +117,9 @@ export async function start(): Promise<void> {
   seedDatabase();
 
   const app = buildApp();
-  const server = app.listen(env.PORT, () => {
+  const server = app.listen(env.PORT, '0.0.0.0', () => {
     logger.info(
-      { port: env.PORT, env: env.NODE_ENV, llm: env.ANTHROPIC_API_KEY ? 'live' : 'fixture' },
+      { port: env.PORT, host: '0.0.0.0', env: env.NODE_ENV, llm: env.ANTHROPIC_API_KEY ? 'live' : 'fixture' },
       'gridsight-api listening',
     );
   });
