@@ -1,14 +1,29 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  LucideAngularModule,
+  Inbox,
+  CheckCircle2,
+  AlertCircle,
+  Hourglass,
+  type LucideIconData,
+} from 'lucide-angular';
+
+const ICONS: Record<string, LucideIconData> = {
+  inbox: Inbox,
+  check_circle: CheckCircle2,
+  error_outline: AlertCircle,
+  hourglass_empty: Hourglass,
+};
 
 @Component({
   selector: 'gs-empty-state',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatIconModule],
+  imports: [LucideAngularModule],
   template: `
     <div class="empty">
-      <mat-icon aria-hidden="true">{{ icon() }}</mat-icon>
+      <i-lucide [img]="iconData()" class="icon" [size]="40" [strokeWidth]="1.4" aria-hidden="true"></i-lucide>
+      <span class="eyebrow">{{ tag() }}</span>
       <h3>{{ title() }}</h3>
       @if (description()) { <p>{{ description() }}</p> }
     </div>
@@ -20,26 +35,33 @@ import { MatIconModule } from '@angular/material/icon';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 3rem 1rem;
+        padding: 4rem 1rem;
         text-align: center;
         color: var(--gs-text-muted);
+        background:
+          radial-gradient(120% 80% at 50% 0%, var(--gs-accent-soft), transparent 60%),
+          var(--gs-surface);
+        border: 1px dashed var(--gs-border-2);
+        border-radius: var(--gs-radius-2);
       }
-      mat-icon {
-        font-size: 2.5rem;
-        width: 2.5rem;
-        height: 2.5rem;
-        margin-bottom: 0.75rem;
-        opacity: 0.6;
+      .icon {
+        color: var(--gs-accent);
+        margin-bottom: 0.95rem;
+        opacity: 0.85;
       }
+      .eyebrow { margin-bottom: 0.6rem; }
       h3 {
-        margin: 0 0 0.4rem;
-        font-size: 1rem;
+        margin: 0 0 0.45rem;
+        font-size: 1.05rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
         color: var(--gs-text);
       }
       p {
         margin: 0;
-        font-size: 0.88rem;
-        max-width: 36ch;
+        font-size: 0.9rem;
+        max-width: 42ch;
+        line-height: 1.5;
       }
     `,
   ],
@@ -48,4 +70,14 @@ export class EmptyStateComponent {
   readonly icon = input<string>('inbox');
   readonly title = input.required<string>();
   readonly description = input<string | null>(null);
+
+  readonly iconData = computed<LucideIconData>(() => ICONS[this.icon()] ?? Inbox);
+  readonly tag = computed(() => {
+    switch (this.icon()) {
+      case 'check_circle': return 'Status · Nominal';
+      case 'error_outline': return 'Status · Fault';
+      case 'hourglass_empty': return 'Status · Awaiting';
+      default: return 'Status';
+    }
+  });
 }

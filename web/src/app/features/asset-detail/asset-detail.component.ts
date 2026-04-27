@@ -1,10 +1,16 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import {
+  LucideAngularModule,
+  ArrowLeft,
+  AlertTriangle,
+  Sparkles,
+  Loader2,
+  CircleDot,
+  Circle,
+} from 'lucide-angular';
 import { ApiService } from '../../core/api.service';
 import { SseService } from '../../core/sse.service';
 import { TelemetryChartComponent } from './telemetry-chart.component';
@@ -19,29 +25,35 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
   imports: [
     CommonModule,
     RouterLink,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
+    LucideAngularModule,
     TelemetryChartComponent,
     SeverityBadgeComponent,
     EmptyStateComponent,
   ],
   template: `
-    <a class="back" routerLink="/"><mat-icon>arrow_back</mat-icon> Fleet overview</a>
+    <a class="back" routerLink="/">
+      <i-lucide [img]="BackIcon" [size]="14" [strokeWidth]="2" aria-hidden="true"></i-lucide>
+      Fleet overview
+    </a>
 
     @if (loading()) {
-      <div class="loading"><mat-progress-spinner diameter="36" mode="indeterminate" /></div>
+      <div class="loading">
+        <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="22" [strokeWidth]="1.6"></i-lucide>
+        <p class="mono">FETCHING ASSET RECORD…</p>
+      </div>
     } @else if (error()) {
       <gs-empty-state icon="error_outline" title="Asset not found" [description]="error()!" />
     }
+
     @if (asset(); as a) {
       <header class="hero">
-        <div>
+        <div class="hero-left">
+          <span class="eyebrow">Asset · {{ typeLabel(a.assetType) }}</span>
           <h1>{{ a.name }}</h1>
           <p class="meta">
             <code>{{ a.id }}</code>
-            · {{ typeLabel(a.assetType) }}
-            · {{ a.locationName }}
+            <span class="dot-sep">·</span>
+            <span>{{ a.locationName }}</span>
           </p>
         </div>
         <dl class="specs">
@@ -50,18 +62,24 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
           <div><dt>Cooling</dt><dd>{{ a.coolingClass }}</dd></div>
           <div><dt>Oil</dt><dd>{{ a.oilType }}</dd></div>
           <div><dt>Installed</dt><dd>{{ a.installYear }}</dd></div>
-          <div><dt>Last inspection</dt><dd>{{ a.lastInspectionDate ?? '—' }}</dd></div>
+          <div><dt>Last insp.</dt><dd>{{ a.lastInspectionDate ?? '—' }}</dd></div>
         </dl>
       </header>
 
       @if (openAlerts().length > 0) {
-        <section class="alerts-banner">
-          <h2><mat-icon>warning</mat-icon> {{ openAlerts().length }} open {{ openAlerts().length === 1 ? 'alert' : 'alerts' }}</h2>
+        <section class="alerts-banner" [attr.data-severity]="bannerSeverity()">
+          <header>
+            <i-lucide class="alarm-icon" [img]="AlertIcon" [size]="16" [strokeWidth]="2" aria-hidden="true"></i-lucide>
+            <h2>
+              {{ openAlerts().length }} OPEN {{ openAlerts().length === 1 ? 'ALERT' : 'ALERTS' }}
+            </h2>
+            <span class="raised-at mono">CONDITION ABNORMAL</span>
+          </header>
           <ul>
             @for (al of openAlerts(); track al.id) {
               <li>
                 <gs-severity-badge [severity]="al.severity" />
-                <span class="rule"><code>{{ al.rule }}</code></span>
+                <code class="rule">{{ al.rule }}</code>
                 <span class="msg">{{ al.message }}</span>
               </li>
             }
@@ -69,20 +87,27 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
         </section>
       }
 
-      <section class="charts">
+      <section class="charts-section">
+        <header class="section-head">
+          <span class="eyebrow">Telemetry · Live</span>
+          <h2>Realtime sensor stream</h2>
+          <span class="hint mono">{{ readings().length }} samples · 5s interval</span>
+        </header>
         @if (readings().length > 0) {
-          <gs-telemetry-chart [readings]="readings()" metric="oilTempC"
-            [series]="{ label: 'Top-oil temperature', unit: '°C', color: '#dc2626', warn: 95, alarm: 105 }" />
-          <gs-telemetry-chart [readings]="readings()" metric="windingTempC"
-            [series]="{ label: 'Hottest-spot winding', unit: '°C', color: '#ea580c', warn: 110, alarm: 130 }" />
-          <gs-telemetry-chart [readings]="readings()" metric="loadFactor"
-            [series]="{ label: 'Load factor', unit: 'pu', color: '#1976d2', warn: 1.0, alarm: 1.2 }" />
-          <gs-telemetry-chart [readings]="readings()" metric="voltagePu"
-            [series]="{ label: 'Voltage', unit: 'pu', color: '#7c3aed' }" />
-          <gs-telemetry-chart [readings]="readings()" metric="dgaH2Ppm"
-            [series]="{ label: 'DGA H₂', unit: 'ppm', color: '#16a34a', warn: 100, alarm: 700 }" />
-          <gs-telemetry-chart [readings]="readings()" metric="dgaC2h2Ppm"
-            [series]="{ label: 'DGA C₂H₂ (acetylene)', unit: 'ppm', color: '#0891b2', alarm: 5 }" />
+          <div class="charts">
+            <gs-telemetry-chart [readings]="readings()" metric="oilTempC"
+              [series]="{ label: 'Top-oil temperature', unit: '°C', color: '#f59e0b', warn: 95, alarm: 105 }" />
+            <gs-telemetry-chart [readings]="readings()" metric="windingTempC"
+              [series]="{ label: 'Hottest-spot winding', unit: '°C', color: '#ef4444', warn: 110, alarm: 130 }" />
+            <gs-telemetry-chart [readings]="readings()" metric="loadFactor"
+              [series]="{ label: 'Load factor', unit: 'pu', color: '#7cdfff', warn: 1.0, alarm: 1.2 }" />
+            <gs-telemetry-chart [readings]="readings()" metric="voltagePu"
+              [series]="{ label: 'Voltage', unit: 'pu', color: '#a78bfa' }" />
+            <gs-telemetry-chart [readings]="readings()" metric="dgaH2Ppm"
+              [series]="{ label: 'DGA H₂', unit: 'ppm', color: '#4ade80', warn: 100, alarm: 700 }" />
+            <gs-telemetry-chart [readings]="readings()" metric="dgaC2h2Ppm"
+              [series]="{ label: 'DGA C₂H₂ (acetylene)', unit: 'ppm', color: '#e8a45c', alarm: 5 }" />
+          </div>
         } @else {
           <gs-empty-state icon="hourglass_empty" title="Awaiting telemetry"
             description="The simulator emits readings every 5 seconds. The first batch should arrive shortly." />
@@ -90,13 +115,18 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
       </section>
 
       <section class="recommendation">
-        <header>
-          <h2>AI maintenance recommendation</h2>
-          <button mat-flat-button color="primary" type="button"
+        <header class="section-head">
+          <span class="eyebrow">AI Maintenance · Anthropic</span>
+          <h2>Structured maintenance recommendation</h2>
+          <button type="button" class="rec-btn"
                   [disabled]="recLoading()" (click)="fetchRecommendation()">
-            @if (recLoading()) { <mat-progress-spinner diameter="18" mode="indeterminate" /> }
-            @else { <mat-icon>auto_awesome</mat-icon> }
-            {{ recLoading() ? 'Analyzing…' : recommendation() ? 'Refresh' : 'Generate' }}
+            @if (recLoading()) {
+              <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="13" [strokeWidth]="2"></i-lucide>
+              ANALYZING…
+            } @else {
+              <i-lucide [img]="SparkIcon" [size]="13" [strokeWidth]="1.8" aria-hidden="true"></i-lucide>
+              {{ recommendation() ? 'REGENERATE' : 'GENERATE' }}
+            }
           </button>
         </header>
 
@@ -108,29 +138,48 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
           <div class="rec-card">
             <div class="rec-meta">
               <gs-severity-badge [severity]="rec.urgency" />
-              <span class="confidence">confidence: <strong>{{ rec.confidence * 100 | number: '1.0-0' }}%</strong></span>
-              <span class="source" [class.live]="rec.source === 'live'">
-                {{ rec.source === 'live' ? 'Claude live' : 'demo fixture' }}
+              <span class="confidence">
+                <span class="lab">Confidence</span>
+                <strong>{{ rec.confidence * 100 | number: '1.0-0' }}%</strong>
+              </span>
+              <span class="source mono" [class.live]="rec.source === 'live'">
+                <i-lucide [img]="rec.source === 'live' ? LiveIcon : InertIcon" [size]="11" [strokeWidth]="2" aria-hidden="true"></i-lucide>
+                {{ rec.source === 'live' ? 'CLAUDE LIVE' : 'DEMO FIXTURE' }}
               </span>
             </div>
-            <h3>Root cause</h3>
-            <p>{{ rec.root_cause }}</p>
-            <h3>Recommended actions</h3>
-            <ol class="actions">
-              @for (act of rec.recommended_actions; track $index) {
-                <li>
-                  <span class="priority" [class]="act.priority">{{ act.priority }}</span>
-                  <strong>{{ act.action }}</strong>
-                  <p class="rationale">{{ act.rationale }}</p>
-                </li>
-              }
-            </ol>
+
+            <div class="rec-grid">
+              <div class="rec-col">
+                <span class="eyebrow">Root cause</span>
+                <p>{{ rec.root_cause }}</p>
+              </div>
+              <div class="rec-col">
+                <span class="eyebrow">Recommended actions</span>
+                <ol class="actions">
+                  @for (act of rec.recommended_actions; track $index) {
+                    <li>
+                      <span class="priority" [class]="act.priority">{{ act.priority }}</span>
+                      <strong>{{ act.action }}</strong>
+                      <p class="rationale">{{ act.rationale }}</p>
+                    </li>
+                  }
+                </ol>
+              </div>
+            </div>
+
             @if (rec.references && rec.references.length > 0) {
-              <p class="refs"><strong>References:</strong> {{ rec.references.join(' · ') }}</p>
+              <p class="refs">
+                <span class="eyebrow">References</span>
+                <span>{{ rec.references.join(' · ') }}</span>
+              </p>
             }
           </div>
         } @else if (!recLoading()) {
-          <p class="rec-hint">Generate a recommendation to see structured maintenance guidance derived from current telemetry and any open alerts.</p>
+          <p class="rec-hint">
+            Generate a recommendation to see structured maintenance guidance derived from the
+            current telemetry window and any open alerts. Backed by tool-use schema enforcement
+            against Claude (or hand-authored fixtures in the deployed demo).
+          </p>
         }
       </section>
     }
@@ -140,66 +189,124 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
       .back {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        margin-bottom: 1rem;
-        font-size: 0.88rem;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-family: var(--gs-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
         color: var(--gs-text-muted);
       }
-      .back mat-icon { font-size: 1.05rem; width: 1.05rem; height: 1.05rem; }
+      .back:hover { color: var(--gs-accent); text-decoration: none; }
+      .back i-lucide { transition: transform 0.15s; }
+      .back:hover i-lucide { transform: translateX(-2px); }
+
       .hero {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1.5rem;
-        padding: 1.25rem 1.5rem;
-        background: var(--gs-surface);
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: 2.5rem;
+        padding: 1.6rem 1.8rem;
+        background:
+          linear-gradient(180deg, rgba(232,164,92,0.04), transparent 60%),
+          var(--gs-surface);
         border: 1px solid var(--gs-border);
-        border-radius: 12px;
-        margin-bottom: 1rem;
+        border-radius: var(--gs-radius-2);
+        margin-bottom: 1.25rem;
+        position: relative;
+        overflow: hidden;
       }
-      h1 {
-        margin: 0 0 0.4rem;
-        font-size: 1.4rem;
-        font-weight: 600;
+      .hero::before {
+        content: '';
+        position: absolute;
+        top: 0; bottom: 0; left: 0;
+        width: 3px;
+        background: linear-gradient(180deg, var(--gs-accent), transparent);
       }
-      .meta {
+      .hero h1 {
+        margin: 0.45rem 0 0.5rem;
+        font-size: clamp(1.45rem, 2.2vw, 1.95rem);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        color: var(--gs-text-strong);
+      }
+      .hero .meta {
         margin: 0;
         color: var(--gs-text-muted);
         font-size: 0.88rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        flex-wrap: wrap;
       }
-      .meta code { font-family: var(--gs-mono); }
+      .hero .meta code {
+        font-family: var(--gs-mono);
+        font-size: 0.82rem;
+        padding: 0.18rem 0.45rem;
+        background: var(--gs-bg-2);
+        border: 1px solid var(--gs-border);
+        border-radius: var(--gs-radius-3);
+        color: var(--gs-text);
+      }
+      .hero .dot-sep { color: var(--gs-accent); opacity: 0.7; }
       .specs {
         display: grid;
-        grid-template-columns: repeat(3, auto);
-        gap: 0.4rem 1.5rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.85rem 1.5rem;
         margin: 0;
+        align-self: center;
       }
       .specs dt {
-        font-size: 0.7rem;
+        font-family: var(--gs-mono);
+        font-size: 0.62rem;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--gs-text-muted);
+        letter-spacing: 0.14em;
+        color: var(--gs-text-faint);
+        margin-bottom: 0.15rem;
       }
       .specs dd {
         margin: 0;
         font-family: var(--gs-mono);
         font-size: 0.92rem;
+        color: var(--gs-text);
+        font-variant-numeric: tabular-nums;
       }
+
       .alerts-banner {
-        background: rgba(220, 38, 38, 0.06);
-        border: 1px solid rgba(220, 38, 38, 0.25);
-        border-radius: 12px;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1rem;
+        --bs: var(--gs-medium);
+        background: var(--gs-medium-soft);
+        border: 1px solid var(--bs);
+        border-left-width: 3px;
+        border-radius: var(--gs-radius-2);
+        padding: 1rem 1.25rem 1.1rem;
+        margin-bottom: 1.5rem;
       }
-      .alerts-banner h2 {
+      .alerts-banner[data-severity='high'],
+      .alerts-banner[data-severity='critical'] { --bs: var(--gs-high); background: var(--gs-high-soft); }
+      .alerts-banner[data-severity='low'] { --bs: var(--gs-low); background: var(--gs-low-soft); }
+
+      .alerts-banner header {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        margin: 0 0 0.6rem;
-        font-size: 0.95rem;
-        color: var(--gs-high);
+        gap: 0.65rem;
+        margin: 0 0 0.85rem;
+      }
+      .alerts-banner .alarm-icon {
+        color: var(--bs);
+        animation: gs-pulse 1.6s ease-in-out infinite;
+      }
+      .alerts-banner h2 {
+        margin: 0;
+        font-family: var(--gs-mono);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        color: var(--bs);
+      }
+      .alerts-banner .raised-at {
+        margin-left: auto;
+        font-size: 0.66rem;
+        color: var(--gs-text-faint);
+        letter-spacing: 0.14em;
       }
       .alerts-banner ul {
         margin: 0;
@@ -207,114 +314,220 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
         list-style: none;
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.55rem;
       }
       .alerts-banner li {
         display: grid;
         grid-template-columns: auto auto 1fr;
-        gap: 0.6rem;
+        gap: 0.7rem;
         align-items: baseline;
         font-size: 0.88rem;
       }
-      .alerts-banner .rule code { font-family: var(--gs-mono); font-size: 0.78rem; color: var(--gs-text-muted); }
+      .alerts-banner .rule {
+        font-family: var(--gs-mono);
+        font-size: 0.72rem;
+        color: var(--gs-text-muted);
+        background: rgba(0,0,0,0.18);
+        padding: 0.14rem 0.4rem;
+        border-radius: var(--gs-radius-3);
+      }
+
+      .charts-section, .recommendation {
+        background: var(--gs-surface);
+        border: 1px solid var(--gs-border);
+        border-radius: var(--gs-radius-2);
+        padding: 1.4rem 1.6rem 1.6rem;
+        margin-bottom: 1.5rem;
+      }
+      .section-head {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.1rem;
+        padding-bottom: 0.85rem;
+        border-bottom: 1px solid var(--gs-divider);
+      }
+      .section-head h2 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: var(--gs-text);
+      }
+      .section-head .eyebrow { flex: none; }
+      .section-head .hint {
+        margin-left: auto;
+        font-size: 0.7rem;
+        color: var(--gs-text-faint);
+        letter-spacing: 0.06em;
+      }
+
       .charts {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 0.75rem;
-        margin-bottom: 1.25rem;
       }
-      .recommendation {
-        background: var(--gs-surface);
-        border: 1px solid var(--gs-border);
-        border-radius: 12px;
-        padding: 1.1rem 1.5rem;
-      }
-      .recommendation header {
-        display: flex;
-        justify-content: space-between;
+
+      .rec-btn {
+        margin-left: auto;
+        display: inline-flex;
         align-items: center;
-        margin-bottom: 0.85rem;
+        gap: 0.5rem;
+        padding: 0.5rem 0.95rem;
+        font-family: var(--gs-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        font-weight: 600;
+        background: var(--gs-accent);
+        color: #1a0e02;
+        border: 0;
+        border-radius: var(--gs-radius);
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
       }
-      .recommendation h2 {
-        margin: 0;
-        font-size: 1rem;
-      }
-      .rec-card { padding: 0.5rem 0; }
+      .rec-btn:hover:not(:disabled) { background: var(--gs-accent-bright); }
+      .rec-btn:active:not(:disabled) { transform: translateY(1px); }
+      .rec-btn:disabled { opacity: 0.55; cursor: progress; }
+      .rec-btn .spark { font-size: 0.85rem; }
+
       .rec-meta {
         display: flex;
-        gap: 0.85rem;
+        gap: 1rem;
         align-items: center;
-        margin-bottom: 0.85rem;
-        font-size: 0.85rem;
-        color: var(--gs-text-muted);
+        margin-bottom: 1.25rem;
+        flex-wrap: wrap;
+      }
+      .rec-meta .confidence {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        font-family: var(--gs-mono);
+      }
+      .rec-meta .confidence .lab {
+        font-size: 0.62rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--gs-text-faint);
+      }
+      .rec-meta .confidence strong {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--gs-text);
+        font-variant-numeric: tabular-nums;
       }
       .rec-meta .source {
-        font-family: var(--gs-mono);
-        font-size: 0.75rem;
-        padding: 0.15rem 0.5rem;
-        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.66rem;
+        letter-spacing: 0.16em;
+        padding: 0.32rem 0.6rem;
+        border-radius: var(--gs-radius-3);
         background: var(--gs-surface-2);
-      }
-      .rec-meta .source.live {
-        background: rgba(22, 163, 74, 0.12);
-        color: var(--gs-low);
-      }
-      .rec-card h3 {
-        margin: 0.85rem 0 0.4rem;
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
+        border: 1px solid var(--gs-border);
         color: var(--gs-text-muted);
       }
-      .rec-card p { margin: 0 0 0.5rem; font-size: 0.92rem; line-height: 1.5; }
+      .rec-meta .source.live {
+        background: var(--gs-low-soft);
+        color: var(--gs-low);
+        border-color: rgba(74, 222, 128, 0.35);
+      }
+
+      .rec-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+        gap: 2rem;
+      }
+      .rec-col .eyebrow { display: block; margin-bottom: 0.6rem; }
+      .rec-col p { margin: 0; font-size: 0.95rem; line-height: 1.55; color: var(--gs-text); }
+
       .actions {
         list-style: none;
         margin: 0;
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.65rem;
       }
       .actions li {
-        padding: 0.65rem 0.85rem;
-        background: var(--gs-surface-2);
-        border-radius: 8px;
+        padding: 0.75rem 0.95rem;
+        background: var(--gs-bg-2);
+        border: 1px solid var(--gs-border);
+        border-left-width: 3px;
+        border-radius: var(--gs-radius);
       }
+      .actions li:has(.priority.now)     { border-left-color: var(--gs-critical); }
+      .actions li:has(.priority.soon)    { border-left-color: var(--gs-medium); }
+      .actions li:has(.priority.planned) { border-left-color: var(--gs-cool); }
       .priority {
         display: inline-block;
         font-family: var(--gs-mono);
-        font-size: 0.7rem;
+        font-size: 0.62rem;
         text-transform: uppercase;
-        padding: 0.1rem 0.45rem;
-        border-radius: 4px;
-        margin-right: 0.5rem;
+        letter-spacing: 0.18em;
+        padding: 0.22rem 0.55rem;
+        border-radius: var(--gs-radius-3);
+        margin-right: 0.65rem;
         font-weight: 600;
       }
-      .priority.now { background: var(--gs-critical); color: white; }
-      .priority.soon { background: rgba(217, 119, 6, 0.2); color: var(--gs-medium); }
-      .priority.planned { background: rgba(25, 118, 210, 0.15); color: var(--gs-accent); }
-      .actions strong { font-size: 0.95rem; }
+      .priority.now     { background: var(--gs-critical); color: #fff; }
+      .priority.soon    { background: var(--gs-medium-soft); color: var(--gs-medium); }
+      .priority.planned { background: var(--gs-cool-soft); color: var(--gs-cool); }
+      .actions strong { font-size: 0.95rem; color: var(--gs-text-strong); font-weight: 500; }
       .actions .rationale {
-        margin: 0.2rem 0 0;
-        font-size: 0.85rem;
+        margin: 0.3rem 0 0;
+        font-size: 0.86rem;
         color: var(--gs-text-muted);
+        line-height: 1.5;
       }
+
       .refs {
-        margin-top: 0.85rem;
-        font-size: 0.8rem;
-        color: var(--gs-text-muted);
+        display: flex;
+        gap: 0.75rem;
+        align-items: baseline;
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px dashed var(--gs-border);
         font-family: var(--gs-mono);
+        font-size: 0.78rem;
+        color: var(--gs-text-muted);
+        flex-wrap: wrap;
       }
+      .refs .eyebrow { margin: 0; }
+
       .rec-hint, .rec-error {
         margin: 0;
-        font-size: 0.88rem;
+        font-size: 0.9rem;
         color: var(--gs-text-muted);
+        line-height: 1.55;
+        max-width: 65ch;
       }
       .rec-error { color: var(--gs-high); }
-      .loading { display: flex; justify-content: center; padding: 3rem 1rem; }
-      @media (max-width: 720px) {
-        .hero { flex-direction: column; }
-        .specs { grid-template-columns: repeat(2, auto); }
+
+      .loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 4rem 1rem;
+        color: var(--gs-text-muted);
+      }
+      .loading p {
+        margin: 0;
+        font-size: 0.7rem;
+        letter-spacing: 0.16em;
+        color: var(--gs-text-faint);
+      }
+
+      @media (max-width: 900px) {
+        .hero { grid-template-columns: 1fr; gap: 1.5rem; }
+        .specs { grid-template-columns: repeat(3, 1fr); }
+        .rec-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+      }
+      @media (max-width: 540px) {
+        .hero { padding: 1.25rem 1.25rem; }
+        .specs { grid-template-columns: repeat(2, 1fr); }
       }
     `,
   ],
@@ -322,6 +535,14 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
 export class AssetDetailComponent {
   private readonly api = inject(ApiService);
   private readonly sse = inject(SseService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  protected readonly BackIcon = ArrowLeft;
+  protected readonly AlertIcon = AlertTriangle;
+  protected readonly SparkIcon = Sparkles;
+  protected readonly LoaderIcon = Loader2;
+  protected readonly LiveIcon = CircleDot;
+  protected readonly InertIcon = Circle;
 
   readonly id = input.required<string>();
 
@@ -337,6 +558,19 @@ export class AssetDetailComponent {
 
   protected readonly openAlerts = computed(() => this.alerts().filter((a) => a.status === 'open'));
 
+  protected readonly bannerSeverity = computed(() => {
+    const ranks = { critical: 4, high: 3, medium: 2, low: 1 } as const;
+    let highest: keyof typeof ranks = 'low';
+    let found = false;
+    for (const a of this.openAlerts()) {
+      if (!found || ranks[a.severity] > ranks[highest]) {
+        highest = a.severity;
+        found = true;
+      }
+    }
+    return found ? highest : 'low';
+  });
+
   constructor() {
     queueMicrotask(() => this.load());
   }
@@ -344,7 +578,7 @@ export class AssetDetailComponent {
   private load(): void {
     const id = this.id();
 
-    this.api.getAsset(id).pipe(takeUntilDestroyed()).subscribe({
+    this.api.getAsset(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (a) => {
         this.asset.set(a);
         this.loading.set(false);
@@ -355,22 +589,22 @@ export class AssetDetailComponent {
       },
     });
 
-    this.api.getTelemetry(id, 120).pipe(takeUntilDestroyed()).subscribe({
+    this.api.getTelemetry(id, 120).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => this.readings.set(res.items),
     });
 
-    this.api.listAlerts('all').pipe(takeUntilDestroyed()).subscribe({
+    this.api.listAlerts('all').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res) => this.alerts.set(res.items.filter((a) => a.assetId === id)),
     });
 
-    this.sse.telemetry$.pipe(takeUntilDestroyed()).subscribe((r) => {
+    this.sse.telemetry$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((r) => {
       if (r.assetId !== id) return;
       const next = [...this.readings(), r];
       if (next.length > 240) next.splice(0, next.length - 240);
       this.readings.set(next);
     });
 
-    this.sse.alerts$.pipe(takeUntilDestroyed()).subscribe((al) => {
+    this.sse.alerts$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((al) => {
       if (al.assetId !== id) return;
       this.alerts.set([al, ...this.alerts()]);
     });
@@ -379,7 +613,7 @@ export class AssetDetailComponent {
   protected fetchRecommendation(): void {
     this.recLoading.set(true);
     this.recError.set(null);
-    this.api.getRecommendation(this.id()).pipe(takeUntilDestroyed()).subscribe({
+    this.api.getRecommendation(this.id()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.recommendation.set(r);
         this.recLoading.set(false);

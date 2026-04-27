@@ -1,54 +1,197 @@
 @use '@angular/material' as mat;
 
-html {
-  height: 100%;
-  color-scheme: light dark;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --gs-bg: #f6f8fa;
-  --gs-surface: #ffffff;
-  --gs-surface-2: #f0f2f5;
-  --gs-text: #11181c;
-  --gs-text-muted: #6b7280;
-  --gs-border: #e5e7eb;
-  --gs-accent: #1976d2;
-  --gs-accent-soft: rgba(25, 118, 210, 0.1);
-  --gs-low: #16a34a;
-  --gs-medium: #d97706;
-  --gs-high: #dc2626;
-  --gs-critical: #991b1b;
-  --gs-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+/*
+ * GridSight design tokens
+ *   Industrial / control-room aesthetic.
+ *   Type:     IBM Plex Sans (UI), IBM Plex Mono (data), IBM Plex Serif (editorial accent)
+ *   Accent:   electric amber — chosen because most ops dashboards default to blue, and
+ *             amber reads as "grid / sodium / transformer-coil" without becoming alarmist.
+ *   Severity: kept industry-semantic (green / amber / red).
+ */
+
+:root {
+  color-scheme: dark light;
+
+  /* Surfaces — deep slate, very low chroma so amber accents pop */
+  --gs-bg:        #0a0d12;
+  --gs-bg-2:      #0e131a;
+  --gs-surface:   #11171f;
+  --gs-surface-2: #161d27;
+  --gs-surface-3: #1c2530;
+  --gs-border:    #1e2734;
+  --gs-border-2:  #2a3543;
+  --gs-divider:   rgba(255,255,255,0.06);
+
+  /* Text */
+  --gs-text:        #e7ecf2;
+  --gs-text-strong: #ffffff;
+  --gs-text-muted:  #8a96a6;
+  --gs-text-faint:  #5d6776;
+
+  /* Accent — electric amber. The brand mark and active states. */
+  --gs-accent:        #e8a45c;
+  --gs-accent-bright: #ffb872;
+  --gs-accent-soft:   rgba(232, 164, 92, 0.12);
+  --gs-accent-line:   rgba(232, 164, 92, 0.35);
+
+  /* Cool secondary — for data series, links, info chips */
+  --gs-cool:        #7cdfff;
+  --gs-cool-soft:   rgba(124, 223, 255, 0.10);
+
+  /* Semantic — severities (kept industry-conventional) */
+  --gs-low:      #4ade80;
+  --gs-low-soft: rgba(74, 222, 128, 0.12);
+  --gs-medium:        #f59e0b;
+  --gs-medium-soft:   rgba(245, 158, 11, 0.14);
+  --gs-high:          #ef4444;
+  --gs-high-soft:     rgba(239, 68, 68, 0.14);
+  --gs-critical:      #b91c1c;
+  --gs-critical-soft: rgba(185, 28, 28, 0.20);
+
+  /* Type families */
+  --gs-sans:   'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --gs-mono:   'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --gs-serif:  'IBM Plex Serif', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+
+  /* Geometry */
+  --gs-radius:   10px;
+  --gs-radius-2: 14px;
+  --gs-radius-3: 4px;
+
+  /* Shadow — used sparingly; mostly we lean on borders */
+  --gs-shadow-soft: 0 1px 0 rgba(255,255,255,0.02), 0 12px 32px -12px rgba(0,0,0,0.55);
+  --gs-shadow-pop:  0 1px 0 rgba(255,255,255,0.03), 0 18px 48px -18px rgba(0,0,0,0.7);
+
+  --gs-grid-line: rgba(255,255,255,0.025);
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    --gs-bg: #0d1117;
-    --gs-surface: #161b22;
-    --gs-surface-2: #1c2128;
-    --gs-text: #e6edf3;
-    --gs-text-muted: #8b949e;
-    --gs-border: #30363d;
-    --gs-accent: #58a6ff;
-    --gs-accent-soft: rgba(88, 166, 255, 0.12);
+@media (prefers-color-scheme: light) {
+  :root {
+    --gs-bg:        #f4f5f7;
+    --gs-bg-2:      #ebedf1;
+    --gs-surface:   #ffffff;
+    --gs-surface-2: #f4f5f7;
+    --gs-surface-3: #eceef2;
+    --gs-border:    #e2e5ea;
+    --gs-border-2:  #d4d8df;
+    --gs-divider:   rgba(0,0,0,0.06);
+
+    --gs-text:        #0f141b;
+    --gs-text-strong: #000000;
+    --gs-text-muted:  #5d6776;
+    --gs-text-faint:  #8a96a6;
+
+    --gs-accent:        #b8742d;
+    --gs-accent-bright: #d18839;
+    --gs-accent-soft:   rgba(184, 116, 45, 0.10);
+    --gs-accent-line:   rgba(184, 116, 45, 0.30);
+
+    --gs-cool:      #0891b2;
+    --gs-cool-soft: rgba(8, 145, 178, 0.10);
+
+    --gs-low:      #15803d;
+    --gs-low-soft: rgba(21, 128, 61, 0.10);
+    --gs-medium:        #b45309;
+    --gs-medium-soft:   rgba(180, 83, 9, 0.12);
+    --gs-high:          #b91c1c;
+    --gs-high-soft:     rgba(185, 28, 28, 0.10);
+    --gs-critical:      #7f1d1d;
+    --gs-critical-soft: rgba(127, 29, 29, 0.16);
+
+    --gs-grid-line: rgba(0,0,0,0.035);
   }
+}
+
+* { box-sizing: border-box; }
+
+html {
+  height: 100%;
+  font-family: var(--gs-sans);
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-size: 15px;
 }
 
 body {
   margin: 0;
-  background: var(--gs-bg);
-  color: var(--gs-text);
   min-height: 100vh;
-}
-
-* {
-  box-sizing: border-box;
+  color: var(--gs-text);
+  background-color: var(--gs-bg);
+  /* Faint dot-grid — gives the page a control-board atmosphere without distracting */
+  background-image:
+    radial-gradient(1200px 600px at 90% -10%, rgba(232, 164, 92, 0.06), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, rgba(124, 223, 255, 0.04), transparent 60%),
+    radial-gradient(circle at 1px 1px, var(--gs-grid-line) 1px, transparent 0);
+  background-size: auto, auto, 28px 28px;
+  background-attachment: fixed;
+  letter-spacing: -0.005em;
+  line-height: 1.5;
 }
 
 a {
   color: var(--gs-accent);
   text-decoration: none;
-  &:hover { text-decoration: underline; }
+  transition: color 0.15s;
+  &:hover { color: var(--gs-accent-bright); text-decoration: underline; text-underline-offset: 3px; }
 }
 
-code, pre {
-  font-family: var(--gs-mono);
+code, pre, .mono { font-family: var(--gs-mono); font-feature-settings: 'zero', 'ss02'; }
+
+/* Numerals: tabular by default for any data-display node */
+.tnum, .num, dd, .reading strong, .counter strong, .value, .ts, .meta code, .id {
+  font-variant-numeric: tabular-nums;
 }
+
+/* Selection */
+::selection { background: var(--gs-accent-soft); color: var(--gs-text-strong); }
+
+/* Scrollbar — subtle but visible on dark */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--gs-border-2); border-radius: 6px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--gs-text-faint); background-clip: padding-box; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Mono section labels — used like nameplate tags throughout the UI */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--gs-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gs-text-faint);
+}
+.eyebrow::before {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  background: var(--gs-accent);
+  display: inline-block;
+}
+
+/* Material overrides — keep our palette consistent */
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--gs-surface-3);
+  --mat-snack-bar-button-color: var(--gs-accent);
+  --mdc-snackbar-supporting-text-color: var(--gs-text);
+  font-family: var(--gs-sans) !important;
+}
+
+button { font-family: inherit; }
+
+@keyframes gs-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+@keyframes gs-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes gs-spin {
+  to { transform: rotate(360deg); }
+}
+.gs-spin { animation: gs-spin 0.9s linear infinite; }
