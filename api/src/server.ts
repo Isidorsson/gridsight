@@ -153,10 +153,11 @@ export async function start(): Promise<void> {
   });
 }
 
-const isMainModule = import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith('server.ts');
-if (isMainModule) {
-  start().catch((err) => {
-    logger.fatal({ err }, 'failed to start');
-    process.exit(1);
-  });
-}
+// Entry point — always start. We're invoked via the Docker CMD or `npm start`.
+console.log(`[boot] gridsight-api starting · node=${process.version} · pid=${process.pid}`);
+console.log(`[boot] env.PORT=${process.env.PORT} env.NODE_ENV=${process.env.NODE_ENV} cwd=${process.cwd()}`);
+start().catch((err) => {
+  console.error('[boot] fatal startup error:', err);
+  logger.fatal({ err }, 'failed to start');
+  process.exit(1);
+});
