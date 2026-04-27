@@ -1,0 +1,23 @@
+{
+  "urgency": "medium",
+  "root_cause": "Sustained load factor above 1.0 pu combined with depressed secondary voltage (≤ 0.95 pu) suggests downstream demand has outgrown the transformer's nameplate rating, or load distribution across phases has become uneven. Sustained over-loading consumes accelerated insulation life even when oil temperature stays nominal.",
+  "recommended_actions": [
+    {
+      "priority": "soon",
+      "action": "Re-route a portion of the downstream feeder load to an adjacent transformer if grid topology permits, or coordinate with operations to shed non-critical load during peak windows.",
+      "rationale": "Bringing the load factor below 1.0 is the cheapest way to halt accelerated aging. Topology re-routing is reversible; insulation damage is not."
+    },
+    {
+      "priority": "soon",
+      "action": "Verify per-phase current balance via SCADA or on-site clamp meter.",
+      "rationale": "Imbalance > 10% between phases indicates a downstream fault or single-phase load growth and changes the recommended remediation."
+    },
+    {
+      "priority": "planned",
+      "action": "Add this asset to the load-growth review for the next capital plan cycle.",
+      "rationale": "If load continues to grow at observed rate, the asset warrants a capacity upgrade or splitting of the downstream feeder."
+    }
+  ],
+  "confidence": 0.78,
+  "references": ["IEEE C57.91-2011 §7.1", "Vattenfall asset-loading policy (internal)"]
+}

@@ -1,0 +1,54 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  color-scheme: light dark;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --gs-bg: #f6f8fa;
+  --gs-surface: #ffffff;
+  --gs-surface-2: #f0f2f5;
+  --gs-text: #11181c;
+  --gs-text-muted: #6b7280;
+  --gs-border: #e5e7eb;
+  --gs-accent: #1976d2;
+  --gs-accent-soft: rgba(25, 118, 210, 0.1);
+  --gs-low: #16a34a;
+  --gs-medium: #d97706;
+  --gs-high: #dc2626;
+  --gs-critical: #991b1b;
+  --gs-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    --gs-bg: #0d1117;
+    --gs-surface: #161b22;
+    --gs-surface-2: #1c2128;
+    --gs-text: #e6edf3;
+    --gs-text-muted: #8b949e;
+    --gs-border: #30363d;
+    --gs-accent: #58a6ff;
+    --gs-accent-soft: rgba(88, 166, 255, 0.12);
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--gs-bg);
+  color: var(--gs-text);
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--gs-accent);
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+code, pre {
+  font-family: var(--gs-mono);
+}

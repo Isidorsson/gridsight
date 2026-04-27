@@ -1,0 +1,23 @@
+{
+  "urgency": "critical",
+  "root_cause": "Hottest-spot winding temperature has reached the IEEE C57.91 alarm threshold (130 °C) while top-oil temperature remains within nominal range. This thermal divergence is characteristic of a localized winding hot spot — most often caused by a turn-to-turn insulation defect, a loose connection, or partial blockage of a single oil duct.",
+  "recommended_actions": [
+    {
+      "priority": "now",
+      "action": "Reduce load to ≤ 50% of rated kVA immediately and notify the duty operator.",
+      "rationale": "A localized winding hot spot can transition to a flashover with minutes of warning. Load reduction lowers I²R heat generation in the affected winding."
+    },
+    {
+      "priority": "now",
+      "action": "Pull a DGA sample within the next 24 hours and request fast-turn-around laboratory analysis.",
+      "rationale": "DGA gas ratios (Duval triangle) discriminate between thermal faults < 300 °C, > 700 °C, and electrical arcing — required to plan the correct intervention."
+    },
+    {
+      "priority": "soon",
+      "action": "Plan a controlled outage for thermographic and electrical-test inspection within 14 days.",
+      "rationale": "If DGA confirms thermal fault, the asset can remain de-rated until inspection. If DGA shows arcing, immediate removal from service is required."
+    }
+  ],
+  "confidence": 0.88,
+  "references": ["IEEE C57.91-2011 §7.2.3", "IEEE C57.104-2019 (DGA Duval triangle)"]
+}

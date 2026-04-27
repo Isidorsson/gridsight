@@ -1,0 +1,18 @@
+{
+  "urgency": "low",
+  "root_cause": "All monitored parameters are within IEEE C57.91 normal-life-expectancy bands. No deviation from the 24-hour baseline.",
+  "recommended_actions": [
+    {
+      "priority": "planned",
+      "action": "Continue routine 6-monthly visual inspection per the asset's existing schedule.",
+      "rationale": "No condition-based intervention warranted. Maintain trend baseline for future anomaly detection."
+    },
+    {
+      "priority": "planned",
+      "action": "Confirm annual DGA sample is on the calendar (target: within 12 months of last laboratory result).",
+      "rationale": "Routine DGA monitoring is the cheapest early-warning mechanism for incipient internal faults."
+    }
+  ],
+  "confidence": 0.92,
+  "references": ["IEEE C57.91-2011 §7", "IEEE C57.104-2019 condition 1"]
+}

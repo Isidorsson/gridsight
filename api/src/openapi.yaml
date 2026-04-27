@@ -1,0 +1,265 @@
+openapi: 3.1.0
+info:
+  title: GridSight API
+  version: 0.1.0
+  description: |
+    Substation asset health monitor — REST + Server-Sent Events.
+    Schema follows IEC 60076 transformer field naming; thresholds reference
+    IEEE C57.91 and IEEE C57.104.
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:3000
+    description: Local development
+tags:
+  - name: assets
+  - name: alerts
+  - name: recommendations
+  - name: stream
+  - name: health
+paths:
+  /v1/assets:
+    get:
+      tags: [assets]
+      summary: List all assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Asset' }
+  /v1/assets/{id}:
+    get:
+      tags: [assets]
+      summary: Get an asset by id
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Asset' }
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/assets/{id}/telemetry:
+    get:
+      tags: [assets]
+      summary: Time-windowed telemetry for one asset
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string } }
+        - { in: query, name: from, schema: { type: string, format: date-time } }
+        - { in: query, name: to, schema: { type: string, format: date-time } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 1000, default: 120 } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/TelemetryReading' }
+  /v1/assets/{id}/recommendations:
+    post:
+      tags: [recommendations]
+      summary: Generate or fetch a maintenance recommendation
+      description: |
+        If `ANTHROPIC_API_KEY` is set on the server, the latest open alert and
+        recent telemetry are sent to Claude (with tool-use schema enforcement).
+        Otherwise a hand-authored fixture is selected based on the alert rule.
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recommendation' }
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/alerts:
+    get:
+      tags: [alerts]
+      summary: List alerts, filterable by status and asset
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [open, ack, resolved, all]
+            default: open
+        - { in: query, name: asset_id, schema: { type: string } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 500, default: 100 } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Alert' }
+  /v1/alerts/{id}/ack:
+    post:
+      tags: [alerts]
+      summary: Acknowledge an open alert
+      parameters:
+        - { in: path, name: id, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user]
+              properties:
+                user: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Alert' }
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/stream:
+    get:
+      tags: [stream]
+      summary: Server-Sent Events stream of telemetry + alert events
+      description: |
+        Emits two event types:
+        * `telemetry` — a `TelemetryReading` per simulated tick, per asset.
+        * `alert` — an `Alert` whenever a new anomaly is detected.
+      responses:
+        '200':
+          description: text/event-stream
+          content:
+            text/event-stream:
+              schema: { type: string }
+  /healthz:
+    get:
+      tags: [health]
+      summary: Liveness probe
+      responses:
+        '200': { description: OK }
+  /readyz:
+    get:
+      tags: [health]
+      summary: Readiness probe (checks DB connectivity)
+      responses:
+        '200': { description: OK }
+        '503': { description: Not ready }
+  /metrics:
+    get:
+      tags: [health]
+      summary: Prometheus metrics exposition
+      responses:
+        '200':
+          description: OK
+          content:
+            text/plain: { schema: { type: string } }
+components:
+  schemas:
+    Asset:
+      type: object
+      required: [id, name, assetType, primaryVoltageKv, secondaryVoltageKv, ratedPowerKva, oilType, installYear, locationName, coolingClass]
+      properties:
+        id: { type: string, example: TR-SOLNA-04 }
+        name: { type: string }
+        assetType:
+          type: string
+          enum: [distribution_transformer, mv_lv_substation, feeder_breaker]
+        primaryVoltageKv: { type: number }
+        secondaryVoltageKv: { type: number }
+        ratedPowerKva: { type: number }
+        oilType: { type: string, enum: [mineral, ester, silicone, dry] }
+        installYear: { type: integer }
+        locationName: { type: string }
+        locationLat: { type: number, nullable: true }
+        locationLng: { type: number, nullable: true }
+        lastInspectionDate: { type: string, format: date, nullable: true }
+        coolingClass: { type: string, enum: [ONAN, ONAF, OFAF] }
+    TelemetryReading:
+      type: object
+      required: [assetId, ts, oilTempC, windingTempC, ambientTempC, loadFactor, voltagePu, currentA, dgaH2Ppm, dgaCh4Ppm, dgaC2h2Ppm]
+      properties:
+        assetId: { type: string }
+        ts: { type: string, format: date-time }
+        oilTempC: { type: number }
+        windingTempC: { type: number }
+        ambientTempC: { type: number }
+        loadFactor: { type: number }
+        voltagePu: { type: number }
+        currentA: { type: number }
+        dgaH2Ppm: { type: number }
+        dgaCh4Ppm: { type: number }
+        dgaC2h2Ppm: { type: number }
+    Alert:
+      type: object
+      required: [id, assetId, rule, severity, message, status, raisedAt]
+      properties:
+        id: { type: string, format: uuid }
+        assetId: { type: string }
+        rule: { type: string }
+        severity: { type: string, enum: [low, medium, high, critical] }
+        message: { type: string }
+        status: { type: string, enum: [open, ack, resolved] }
+        raisedAt: { type: string, format: date-time }
+        ackedAt: { type: string, format: date-time, nullable: true }
+        ackUser: { type: string, nullable: true }
+        resolvedAt: { type: string, format: date-time, nullable: true }
+    Recommendation:
+      type: object
+      required: [urgency, root_cause, recommended_actions, confidence, source, generated_at]
+      properties:
+        urgency: { type: string, enum: [low, medium, high, critical] }
+        root_cause: { type: string }
+        recommended_actions:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [priority, action, rationale]
+            properties:
+              priority: { type: string, enum: [now, soon, planned] }
+              action: { type: string }
+              rationale: { type: string }
+        confidence: { type: number, minimum: 0, maximum: 1 }
+        references:
+          type: array
+          items: { type: string }
+        source: { type: string, enum: [live, fixture] }
+        generated_at: { type: string, format: date-time }
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error: { type: string }
+        message: { type: string }
+        details: { }
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    BadRequest:
+      description: Validation or business-rule error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

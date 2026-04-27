@@ -1,0 +1,23 @@
+{
+  "urgency": "high",
+  "root_cause": "Top-oil temperature has crossed the IEEE C57.91 alarm threshold (105 °C) while load factor remained near rated capacity. The combination indicates the cooling system is under-performing relative to thermal demand — most commonly a fouled radiator surface, degraded fan operation, or low oil level.",
+  "recommended_actions": [
+    {
+      "priority": "now",
+      "action": "Reduce loading to ≤ 70% of rated kVA until oil temperature returns below 90 °C.",
+      "rationale": "Sustained operation above 105 °C accelerates insulation aging by ~2× per 6 °C (Arrhenius). Load reduction is the only corrective lever available remotely."
+    },
+    {
+      "priority": "soon",
+      "action": "Dispatch field crew to verify cooling fan status, radiator surface cleanliness, and oil level.",
+      "rationale": "Three of the four most common causes of high-oil-temp events are cooling-system mechanical and can be diagnosed in a single 30-minute site visit."
+    },
+    {
+      "priority": "planned",
+      "action": "Schedule infrared thermography sweep of all radiator panels during the next available outage window.",
+      "rationale": "Thermography reveals partial blockages and uneven flow that are not detectable from oil-temp telemetry alone."
+    }
+  ],
+  "confidence": 0.84,
+  "references": ["IEEE C57.91-2011 §7.2.2", "IEEE C57.91-2011 Annex A"]
+}

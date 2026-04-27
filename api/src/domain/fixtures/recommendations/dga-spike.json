@@ -1,0 +1,28 @@
+{
+  "urgency": "critical",
+  "root_cause": "Dissolved-gas analysis exceeds IEEE C57.104 condition 3 limits (H₂ > 700 ppm and/or C₂H₂ > 5 ppm). Acetylene above the 5 ppm threshold is the strongest single indicator of internal arcing in a mineral-oil transformer and should be treated as a presumptive incipient fault until laboratory analysis disproves it.",
+  "recommended_actions": [
+    {
+      "priority": "now",
+      "action": "Remove the asset from service or de-rate to ≤ 30% of nameplate kVA pending laboratory DGA confirmation.",
+      "rationale": "Internal arcing can escalate to bushing failure or tank rupture with little warning. Service removal is the conservative posture until ratios are confirmed."
+    },
+    {
+      "priority": "now",
+      "action": "Dispatch a sampling crew within 8 hours and request expedited laboratory turnaround (target: 48 h).",
+      "rationale": "Fresh DGA + Duval triangle classification is the only diagnostic that distinguishes arcing in oil from arcing involving cellulose — the two have different repair paths."
+    },
+    {
+      "priority": "soon",
+      "action": "Notify control center and prepare alternate feeder routing in case full removal is required.",
+      "rationale": "If DGA confirms condition 3 with acetylene, removal from service is mandatory. Pre-staging the topology change minimizes customer-minutes lost."
+    },
+    {
+      "priority": "planned",
+      "action": "Schedule electrical tests (turns ratio, insulation resistance, sweep frequency response analysis) prior to any return-to-service decision.",
+      "rationale": "After an arcing fault, electrical-test signatures must be compared to factory or commissioning baselines before re-energization."
+    }
+  ],
+  "confidence": 0.91,
+  "references": ["IEEE C57.104-2019 §10 (condition 3)", "IEEE C57.104-2019 Annex A (Duval triangle)"]
+}
