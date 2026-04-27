@@ -3,12 +3,13 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { SseService } from './core/sse.service';
+import { DemoBannerComponent } from './shared/demo-banner.component';
 
 @Component({
   selector: 'gs-root',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule, MatButtonModule, DemoBannerComponent],
   template: `
     <header class="app-header">
       <div class="brand">
@@ -27,6 +28,7 @@ import { SseService } from './core/sse.service';
     </header>
 
     <main class="app-main">
+      <gs-demo-banner />
       <router-outlet />
     </main>
   `,
