@@ -9,7 +9,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "ng build --configuration=development --no-progress"
   },
   "dependencies": {
     "@angular/animations": "^18.2.0",
