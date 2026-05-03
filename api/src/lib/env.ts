@@ -14,6 +14,7 @@ const EnvSchema = z.object({
     (v) => (typeof v === 'string' ? v.trim() || undefined : v),
     z.string().optional(),
   ),
+  ENERGY_CHARTS_BASE: trimmed(z.string().min(1)).default('https://api.energy-charts.info'),
   NODE_ENV: z.preprocess(
     (v) => (typeof v === 'string' ? v.trim() : v),
     z.enum(['development', 'production', 'test']).default('development'),

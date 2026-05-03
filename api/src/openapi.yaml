@@ -17,7 +17,87 @@ tags:
   - name: recommendations
   - name: stream
   - name: health
+  - name: grid
 paths:
+  /v1/grid/zones:
+    get:
+      tags: [grid]
+      summary: List ENTSO-E bidding zones available for the demo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/BiddingZone' }
+  /v1/grid/summary:
+    get:
+      tags: [grid]
+      summary: Cross-zone summary — fossil-free share, current price, top fuel
+      parameters:
+        - { in: query, name: source, schema: { type: string, enum: [auto, mock, live], default: auto } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/ZoneSummary' }
+  /v1/grid/mix:
+    get:
+      tags: [grid]
+      summary: Generation mix per fuel type for a bidding zone
+      parameters:
+        - { in: query, name: zone, required: true, schema: { type: string }, description: ENTSO-E EIC code }
+        - { in: query, name: source, schema: { type: string, enum: [auto, mock, live], default: auto } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GenerationMix' }
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/grid/prices:
+    get:
+      tags: [grid]
+      summary: Day-ahead hourly prices for a bidding zone
+      parameters:
+        - { in: query, name: zone, required: true, schema: { type: string } }
+        - { in: query, name: source, schema: { type: string, enum: [auto, mock, live], default: auto } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DayAheadPrices' }
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/grid/zone/{code}:
+    get:
+      tags: [grid]
+      summary: Single-zone summary
+      parameters:
+        - { in: path, name: code, required: true, schema: { type: string } }
+        - { in: query, name: source, schema: { type: string, enum: [auto, mock, live], default: auto } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ZoneSummary' }
+        '404':
+          $ref: '#/components/responses/NotFound'
   /v1/assets:
     get:
       tags: [assets]
@@ -245,6 +325,77 @@ components:
           items: { type: string }
         source: { type: string, enum: [live, fixture] }
         generated_at: { type: string, format: date-time }
+    BiddingZone:
+      type: object
+      required: [code, label, country, lat, lng]
+      properties:
+        code:    { type: string, description: ENTSO-E EIC code }
+        label:   { type: string }
+        country: { type: string }
+        lat:     { type: number }
+        lng:     { type: number }
+        mockFossilShare: { type: number }
+        mockPriceBase:   { type: number }
+    FuelSlice:
+      type: object
+      required: [kind, label, mw, fossilFree]
+      properties:
+        kind:
+          type: string
+          enum: [nuclear, hydro, wind_onshore, wind_offshore, solar, biomass,
+                 fossil_gas, fossil_hard_coal, fossil_brown_coal, fossil_oil,
+                 other_renewable, other]
+        label: { type: string }
+        mw:    { type: number, description: Megawatts at the reference timestamp }
+        fossilFree: { type: boolean }
+    GenerationMix:
+      type: object
+      required: [zone, ts, totalMw, fossilFreeShare, slices, source]
+      properties:
+        zone: { type: string }
+        ts:   { type: string, format: date-time }
+        totalMw:         { type: number }
+        fossilFreeShare: { type: number, minimum: 0, maximum: 1 }
+        slices:
+          type: array
+          items: { $ref: '#/components/schemas/FuelSlice' }
+        source: { type: string, enum: [mock, live] }
+    DayAheadPrices:
+      type: object
+      required: [zone, date, currency, unit, hourly, source]
+      properties:
+        zone:     { type: string }
+        date:     { type: string }
+        currency: { type: string, enum: [EUR] }
+        unit:     { type: string, enum: [EUR/MWh] }
+        hourly:
+          type: array
+          items:
+            type: object
+            required: [hour, price]
+            properties:
+              hour:  { type: integer, minimum: 0, maximum: 23 }
+              price: { type: number }
+        source: { type: string, enum: [mock, live] }
+    ZoneSummary:
+      type: object
+      required: [zone, label, country, ts, totalMw, fossilFreeShare, currentPrice, topFuel, source]
+      properties:
+        zone:     { type: string }
+        label:    { type: string }
+        country:  { type: string }
+        ts:       { type: string, format: date-time }
+        totalMw:  { type: number }
+        fossilFreeShare: { type: number }
+        currentPrice:    { type: number }
+        topFuel:
+          type: object
+          required: [kind, label, mw]
+          properties:
+            kind:  { type: string }
+            label: { type: string }
+            mw:    { type: number }
+        source: { type: string, enum: [mock, live] }
     Error:
       type: object
       required: [error, message]

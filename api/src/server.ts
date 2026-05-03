@@ -20,6 +20,7 @@ import {
 import { sseBus } from './lib/sse.js';
 import { alertsRouter } from './routes/alerts.js';
 import { assetsRouter } from './routes/assets.js';
+import { gridRouter } from './routes/grid.js';
 import { healthRouter } from './routes/health.js';
 import { recommendationsRouter } from './routes/recommendations.js';
 import { streamRouter } from './routes/stream.js';
@@ -106,6 +107,7 @@ export function buildApp(): express.Express {
   app.use('/v1/assets', recommendationsRouter);
   app.use('/v1/alerts', alertsRouter);
   app.use('/v1/stream', streamRouter);
+  app.use('/v1/grid', gridRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
