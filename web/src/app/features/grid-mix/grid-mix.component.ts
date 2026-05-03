@@ -70,7 +70,8 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
       </div>
     } @else if (error()) {
       <p class="err">Could not load grid data — {{ error() }}</p>
-    } @else if (mix(); as m) {
+    } @else if (mix()) {
+      @if (mix(); as m) {
       <section class="kpi-row">
         <div class="kpi">
           <span class="lbl">Total generation</span>
@@ -192,6 +193,7 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
           }
         </ul>
       </section>
+      }
     }
   `,
   styles: [
