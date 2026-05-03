@@ -101,7 +101,7 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
             <i-lucide [img]="topFuelIcon()" [size]="11" [strokeWidth]="2" aria-hidden="true"></i-lucide>
             Lead source
           </span>
-          <span class="val small">{{ m.slices[0]?.label ?? '—' }}</span>
+          <span class="val small">{{ m.slices.length ? m.slices[0].label : '—' }}</span>
           <span class="unit">{{ leadShare() | number: '1.0-1' }}% of mix</span>
         </div>
       </section>
