@@ -2,10 +2,12 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideAngularModule, Loader2, Filter, Check, Activity } from 'lucide-angular';
+import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { SseService } from '../../core/sse.service';
 import { AssetCardComponent } from '../../shared/asset-card.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
+import { FleetMapComponent } from '../../shared/fleet-map.component';
 import type { Alert, Asset, Severity, TelemetryReading } from '../../core/types';
 
 type FilterMode = 'all' | 'with_alerts';
@@ -14,10 +16,10 @@ type FilterMode = 'all' | 'with_alerts';
   selector: 'gs-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, LucideAngularModule, AssetCardComponent, EmptyStateComponent],
+  imports: [CommonModule, LucideAngularModule, AssetCardComponent, EmptyStateComponent, FleetMapComponent],
   template: `
     <section class="page-head">
-      <span class="eyebrow">Fleet · 01 Overview</span>
+      <span class="eyebrow">Fleet · 02 Asset overview</span>
       <h1>
         Real-time health of <span class="hl">{{ assets().length || '—' }}</span> distribution-grid assets
         across the Solna metro area.
@@ -75,6 +77,10 @@ type FilterMode = 'all' | 'with_alerts';
         </span>
         <span class="stat-foot">{{ readingsReceived() | number: '1.0-0' }} readings rcvd</span>
       </div>
+    </section>
+
+    <section class="map-section" aria-label="Fleet map">
+      <gs-fleet-map [assets]="assets()" [alertsByAsset]="alertsByAsset()" (select)="onMapSelect($event)" />
     </section>
 
     <section class="page-body">
@@ -264,6 +270,10 @@ type FilterMode = 'all' | 'with_alerts';
         color: var(--gs-text);
       }
 
+      .map-section {
+        margin-bottom: 1.5rem;
+      }
+
       .grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -296,6 +306,7 @@ type FilterMode = 'all' | 'with_alerts';
 export class DashboardComponent {
   private readonly api = inject(ApiService);
   protected readonly sse = inject(SseService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly assets = signal<Asset[]>([]);
@@ -372,5 +383,9 @@ export class DashboardComponent {
       next.set(alert.assetId, [alert, ...list]);
       this.alertsByAsset.set(next);
     });
+  }
+
+  protected onMapSelect(asset: Asset): void {
+    void this.router.navigate(['/assets', asset.id]);
   }
 }

@@ -31,7 +31,7 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
     EmptyStateComponent,
   ],
   template: `
-    <a class="back" routerLink="/">
+    <a class="back" routerLink="/fleet">
       <i-lucide [img]="BackIcon" [size]="14" [strokeWidth]="2" aria-hidden="true"></i-lucide>
       Fleet overview
     </a>

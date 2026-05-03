@@ -25,7 +25,7 @@ type StatusFilter = 'open' | 'ack' | 'resolved' | 'all';
   ],
   template: `
     <section class="page-head">
-      <span class="eyebrow">Alerts · 02 Threshold rules</span>
+      <span class="eyebrow">Alerts · 04 Threshold rules</span>
       <h1>Anomaly stream</h1>
       <p class="lede">
         Threshold-based rules referenced against IEEE&nbsp;C57.91 and IEC&nbsp;C57.104.

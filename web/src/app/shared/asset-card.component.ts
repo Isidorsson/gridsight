@@ -1,15 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucideAngularModule, Hourglass } from 'lucide-angular';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SeverityBadgeComponent } from './severity-badge.component';
+import { SparklineComponent } from './sparkline.component';
+import { SseService } from '../core/sse.service';
 import type { Alert, Asset, TelemetryReading } from '../core/types';
 
 @Component({
   selector: 'gs-asset-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, RouterLink, LucideAngularModule, SeverityBadgeComponent],
+  imports: [DecimalPipe, RouterLink, LucideAngularModule, SeverityBadgeComponent, SparklineComponent],
   template: `
     <a class="card" [routerLink]="['/assets', asset().id]"
        [class.has-alert]="!!highestSeverity()"
@@ -75,6 +78,16 @@ import type { Alert, Asset, TelemetryReading } from '../core/types';
               </strong>
             </div>
           </div>
+          @if (oilHistory().length >= 2) {
+            <div class="spark" aria-hidden="true">
+              <gs-sparkline [values]="oilHistory()"
+                            color="var(--gs-accent)"
+                            [warn]="95"
+                            [alarm]="105"
+                            ariaLabel="Top-oil temperature history" />
+              <span class="spark-label">{{ oilHistory().length }} ticks</span>
+            </div>
+          }
         } @else {
           <div class="readings empty">
             <i-lucide [img]="HourglassIcon" [size]="13" [strokeWidth]="1.6" aria-hidden="true"></i-lucide>
@@ -249,6 +262,28 @@ import type { Alert, Asset, TelemetryReading } from '../core/types';
       .reading strong.warn  { color: var(--gs-medium); }
       .reading strong.alarm { color: var(--gs-high); }
 
+      .spark {
+        margin-top: 0.7rem;
+        padding-top: 0.55rem;
+        border-top: 1px dashed var(--gs-border);
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+      }
+      .spark gs-sparkline {
+        flex: 1;
+        height: 26px;
+        display: block;
+      }
+      .spark-label {
+        font-family: var(--gs-mono);
+        font-size: 0.6rem;
+        letter-spacing: 0.1em;
+        color: var(--gs-text-faint);
+        text-transform: uppercase;
+        font-variant-numeric: tabular-nums;
+      }
+
       .badge.ok {
         display: inline-flex;
         align-items: center;
@@ -280,7 +315,28 @@ export class AssetCardComponent {
   readonly alerts = input<Alert[]>([]);
   readonly index = input<number>(0);
 
+  private readonly sse = inject(SseService);
+  private readonly destroyRef = inject(DestroyRef);
+
   protected readonly HourglassIcon = Hourglass;
+  protected readonly oilHistory = signal<number[]>([]);
+
+  constructor() {
+    // Per-card sparkline window. We subscribe directly to SSE rather than
+    // chaining off `latest()` so we don't double-count the parent's update.
+    this.sse.telemetry$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((r) => {
+        if (r.assetId !== this.asset().id) return;
+        this.append(r.oilTempC);
+      });
+  }
+
+  private append(value: number): void {
+    const next = [...this.oilHistory(), value];
+    if (next.length > 30) next.splice(0, next.length - 30);
+    this.oilHistory.set(next);
+  }
 
   readonly typeLabel = computed(() => {
     switch (this.asset().assetType) {

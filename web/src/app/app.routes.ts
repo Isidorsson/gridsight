@@ -5,8 +5,20 @@ export const routes: Routes = [
     path: '',
     pathMatch: 'full',
     loadComponent: () =>
+      import('./features/showcase/showcase.component').then((m) => m.ShowcaseComponent),
+    title: 'GridSight — distribution-grid asset health & European grid mix',
+  },
+  {
+    path: 'fleet',
+    loadComponent: () =>
       import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
-    title: 'Dashboard — GridSight',
+    title: 'Fleet — GridSight',
+  },
+  {
+    path: 'grid',
+    loadComponent: () =>
+      import('./features/grid-mix/grid-mix.component').then((m) => m.GridMixComponent),
+    title: 'European Grid Mix — GridSight',
   },
   {
     path: 'assets/:id',

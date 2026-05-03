@@ -2,7 +2,18 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import type { ApiList, Alert, Asset, Recommendation, TelemetryReading } from './types';
+import type {
+  ApiList,
+  Alert,
+  Asset,
+  BiddingZone,
+  DataSource,
+  DayAheadPrices,
+  GenerationMix,
+  Recommendation,
+  TelemetryReading,
+  ZoneSummary,
+} from './types';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -37,5 +48,21 @@ export class ApiService {
 
   ackAlert(id: string, user: string): Observable<Alert> {
     return this.http.post<Alert>(`${this.base}/v1/alerts/${encodeURIComponent(id)}/ack`, { user });
+  }
+
+  listGridZones(): Observable<ApiList<BiddingZone>> {
+    return this.http.get<ApiList<BiddingZone>>(`${this.base}/v1/grid/zones`);
+  }
+
+  getGridSummary(source: DataSource = 'auto'): Observable<ApiList<ZoneSummary>> {
+    return this.http.get<ApiList<ZoneSummary>>(`${this.base}/v1/grid/summary`, { params: { source } });
+  }
+
+  getGridMix(zone: string, source: DataSource = 'auto'): Observable<GenerationMix> {
+    return this.http.get<GenerationMix>(`${this.base}/v1/grid/mix`, { params: { zone, source } });
+  }
+
+  getGridPrices(zone: string, source: DataSource = 'auto'): Observable<DayAheadPrices> {
+    return this.http.get<DayAheadPrices>(`${this.base}/v1/grid/prices`, { params: { zone, source } });
   }
 }

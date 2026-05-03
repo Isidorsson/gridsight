@@ -25,10 +25,16 @@ import { DemoBannerComponent } from './shared/demo-banner.component';
         </a>
         <nav class="app-nav" aria-label="Primary">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <span class="hash">00</span> Showcase
+          </a>
+          <a routerLink="/fleet" routerLinkActive="active">
             <span class="hash">01</span> Fleet
           </a>
+          <a routerLink="/grid" routerLinkActive="active">
+            <span class="hash">02</span> Grid
+          </a>
           <a routerLink="/alerts" routerLinkActive="active">
-            <span class="hash">02</span> Alerts
+            <span class="hash">03</span> Alerts
           </a>
         </nav>
       </div>
@@ -51,6 +57,8 @@ import { DemoBannerComponent } from './shared/demo-banner.component';
       <span>IEC 61850 SUBSTATION COMMS</span>
       <span class="sep">·</span>
       <span>SCADA SIMULATED · 5s INTERVAL</span>
+      <span class="sep">·</span>
+      <span>ENERGY-CHARTS · LIVE GENERATION · DAY-AHEAD</span>
       <span class="sep">·</span>
       <span>RECOMMENDATIONS POWERED BY ANTHROPIC CLAUDE</span>
     </div>
