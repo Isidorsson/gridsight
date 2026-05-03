@@ -1,19 +1,24 @@
 # GridSight
 
-Substation asset health monitor — Angular 17 dashboard + Node/Express + TypeScript API.
+Distribution-grid asset health + European grid mix — Angular 18 dashboard + Node/Express + TypeScript API.
 
-A vertical slice that demonstrates real-time telemetry monitoring for distribution-grid assets: simulated SCADA-style sensor readings, threshold-based anomaly alerts, and Anthropic-powered maintenance recommendations.
+Two vertical slices behind one design language:
+
+1. **Asset performance & anomaly monitor** — simulated SCADA telemetry for a fleet of substation transformers, threshold-based alerts referenced to IEEE C57.91, Anthropic Claude maintenance recommendations.
+2. **European grid · live mix & market** — generation mix per fuel type and 24h day-ahead prices across 10 ENTSO-E bidding zones, with cross-zone fossil-free comparison.
 
 ## Architecture
 
 ```
-Angular 17 SPA  ──HTTPS/SSE──►  Express + TS API  ──►  SQLite
+Angular 18 SPA  ──HTTPS/SSE──►  Express + TS API  ──►  SQLite
                                        │
-                                       ├──►  SCADA simulator (in-process)
-                                       └──►  Anthropic Claude (env-gated)
+                                       ├──►  SCADA simulator  (in-process)
+                                       ├──►  Anthropic Claude (env-gated)
+                                       └──►  Energy-Charts API (Fraunhofer ISE, mock fallback)
 ```
 
 - **Public demo serves recommendation fixtures** — no API key in deployed env. The real Anthropic integration is in `api/src/domain/recommender.ts` and runs locally when `ANTHROPIC_API_KEY` is set.
+- **European grid mix is live by default** — pulls from Energy-Charts (no auth, no key). The frontend ships a 3-way `auto / live / mock` source toggle so you can compare the real upstream against a deterministic synthetic backend on the same UI; live errors fall back to mock automatically. 5-min in-process cache keeps the upstream call rate polite.
 - **Stateless API, env-driven config** — Azure App Service portable.
 
 ## Repo layout
@@ -24,16 +29,29 @@ gridsight/
 └── web/   # Angular 17 frontend (added Day 5 of build plan)
 ```
 
-## Quick start (API only — Day 1 scope)
+## Quick start (full stack)
 
 ```bash
-cd api
-npm install
+# from repo root — first time only:
+npm run install:all
+
+# starts api + web together; Ctrl+C kills both:
 npm run dev
-# API on http://localhost:3000
-# OpenAPI on http://localhost:3000/openapi
-# Metrics on http://localhost:3000/metrics
 ```
+
+Then open:
+
+- Web: http://localhost:4200
+- API: http://localhost:3000
+- OpenAPI: http://localhost:3000/openapi
+- Metrics: http://localhost:3000/metrics
+- Live grid mix sample: http://localhost:3000/v1/grid/mix?zone=10Y1001A1001A47J
+
+Other root scripts:
+
+- `npm run typecheck` — both projects
+- `npm run build` — both projects
+- `npm start` — runs the **built** API + web dev server (production-ish)
 
 ## Build status
 
