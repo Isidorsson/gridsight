@@ -1,104 +1,113 @@
 @use '@angular/material' as mat;
 
 /*
- * GridSight design tokens
- *   Industrial / control-room aesthetic.
- *   Type:     IBM Plex Sans (UI), IBM Plex Mono (data), IBM Plex Serif (editorial accent)
- *   Accent:   electric amber — chosen because most ops dashboards default to blue, and
- *             amber reads as "grid / sodium / transformer-coil" without becoming alarmist.
- *   Severity: kept industry-semantic (green / amber / red).
+ * GridSight design tokens — Vattenfall reskin
+ *   Type:     Inter (UI), IBM Plex Mono (data), system serif (editorial accent)
+ *   Brand:    Vattenfall Yellow #FFDA00 — constant across modes, used for splashes/highlights
+ *   Accent:   navy in light, yellow in dark — the active/link/brand-mark color
+ *   Mode:     Light default (Scandinavian clean), dark via prefers-color-scheme
+ *   Severity: industry-conventional green / amber / red, contrast-tuned per mode
  */
 
 :root {
-  color-scheme: dark light;
+  color-scheme: light dark;
 
-  /* Surfaces — deep slate, very low chroma so amber accents pop */
-  --gs-bg:        #0a0d12;
-  --gs-bg-2:      #0e131a;
-  --gs-surface:   #11171f;
-  --gs-surface-2: #161d27;
-  --gs-surface-3: #1c2530;
-  --gs-border:    #1e2734;
-  --gs-border-2:  #2a3543;
-  --gs-divider:   rgba(255,255,255,0.06);
+  /* Surfaces — clean white with subtle grays */
+  --gs-bg:        #ffffff;
+  --gs-bg-2:      #f7f8fa;
+  --gs-surface:   #ffffff;
+  --gs-surface-2: #f4f5f7;
+  --gs-surface-3: #eceef2;
+  --gs-border:    #e1e4ea;
+  --gs-border-2:  #c8ccd4;
+  --gs-divider:   rgba(0,0,0,0.06);
 
   /* Text */
-  --gs-text:        #e7ecf2;
-  --gs-text-strong: #ffffff;
-  --gs-text-muted:  #8a96a6;
-  --gs-text-faint:  #5d6776;
+  --gs-text:        #0f1b2d;
+  --gs-text-strong: #000814;
+  --gs-text-muted:  #5a6373;
+  --gs-text-faint:  #8a91a0;
 
-  /* Accent — electric amber. The brand mark and active states. */
-  --gs-accent:        #e8a45c;
-  --gs-accent-bright: #ffb872;
-  --gs-accent-soft:   rgba(232, 164, 92, 0.12);
-  --gs-accent-line:   rgba(232, 164, 92, 0.35);
+  /* Brand — Vattenfall Yellow. Constant across modes. Used for splashes, eyebrow dot, gradients. */
+  --gs-brand:        #ffda00;
+  --gs-brand-bright: #ffe54a;
+  --gs-brand-soft:   rgba(255, 218, 0, 0.18);
+  --gs-brand-line:   rgba(255, 218, 0, 0.45);
 
-  /* Cool secondary — for data series, links, info chips */
-  --gs-cool:        #7cdfff;
-  --gs-cool-soft:   rgba(124, 223, 255, 0.10);
+  /* Accent — navy in light. Wherever components currently call var(--gs-accent). */
+  --gs-accent:        #0068a1;
+  --gs-accent-bright: #0083c7;
+  --gs-accent-soft:   rgba(0, 104, 161, 0.10);
+  --gs-accent-line:   rgba(0, 104, 161, 0.30);
 
-  /* Semantic — severities (kept industry-conventional) */
-  --gs-low:      #4ade80;
-  --gs-low-soft: rgba(74, 222, 128, 0.12);
-  --gs-medium:        #f59e0b;
-  --gs-medium-soft:   rgba(245, 158, 11, 0.14);
-  --gs-high:          #ef4444;
-  --gs-high-soft:     rgba(239, 68, 68, 0.14);
-  --gs-critical:      #b91c1c;
-  --gs-critical-soft: rgba(185, 28, 28, 0.20);
+  /* Cool secondary — Nordic teal for data series, info chips */
+  --gs-cool:        #007a7a;
+  --gs-cool-soft:   rgba(0, 122, 122, 0.08);
+
+  /* Semantic — severities (industry-conventional, tuned for white bg) */
+  --gs-low:           #1b7f3a;
+  --gs-low-soft:      rgba(27, 127, 58, 0.10);
+  --gs-medium:        #b45309;
+  --gs-medium-soft:   rgba(180, 83, 9, 0.12);
+  --gs-high:          #b91c1c;
+  --gs-high-soft:     rgba(185, 28, 28, 0.10);
+  --gs-critical:      #7f1d1d;
+  --gs-critical-soft: rgba(127, 29, 29, 0.16);
 
   /* Type families */
-  --gs-sans:   'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --gs-sans:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --gs-mono:   'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  --gs-serif:  'IBM Plex Serif', 'Iowan Old Style', 'Apple Garamond', Georgia, serif;
+  --gs-serif:  'Iowan Old Style', 'Apple Garamond', Georgia, serif;
 
   /* Geometry */
   --gs-radius:   10px;
   --gs-radius-2: 14px;
   --gs-radius-3: 4px;
 
-  /* Shadow — used sparingly; mostly we lean on borders */
-  --gs-shadow-soft: 0 1px 0 rgba(255,255,255,0.02), 0 12px 32px -12px rgba(0,0,0,0.55);
-  --gs-shadow-pop:  0 1px 0 rgba(255,255,255,0.03), 0 18px 48px -18px rgba(0,0,0,0.7);
+  /* Shadow — gentle on light surfaces */
+  --gs-shadow-soft: 0 1px 2px rgba(15, 27, 45, 0.04), 0 8px 24px -12px rgba(15, 27, 45, 0.10);
+  --gs-shadow-pop:  0 1px 3px rgba(15, 27, 45, 0.05), 0 18px 40px -18px rgba(15, 27, 45, 0.18);
 
-  --gs-grid-line: rgba(255,255,255,0.025);
+  --gs-grid-line: rgba(15, 27, 45, 0.04);
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    --gs-bg:        #f4f5f7;
-    --gs-bg-2:      #ebedf1;
-    --gs-surface:   #ffffff;
-    --gs-surface-2: #f4f5f7;
-    --gs-surface-3: #eceef2;
-    --gs-border:    #e2e5ea;
-    --gs-border-2:  #d4d8df;
-    --gs-divider:   rgba(0,0,0,0.06);
+    --gs-bg:        #061327;
+    --gs-bg-2:      #08182f;
+    --gs-surface:   #0a1d36;
+    --gs-surface-2: #0e2440;
+    --gs-surface-3: #142d4f;
+    --gs-border:    #1a2c4a;
+    --gs-border-2:  #294068;
+    --gs-divider:   rgba(255,255,255,0.06);
 
-    --gs-text:        #0f141b;
-    --gs-text-strong: #000000;
-    --gs-text-muted:  #5d6776;
-    --gs-text-faint:  #8a96a6;
+    --gs-text:        #e7ecf2;
+    --gs-text-strong: #ffffff;
+    --gs-text-muted:  #8a96a6;
+    --gs-text-faint:  #5d6776;
 
-    --gs-accent:        #b8742d;
-    --gs-accent-bright: #d18839;
-    --gs-accent-soft:   rgba(184, 116, 45, 0.10);
-    --gs-accent-line:   rgba(184, 116, 45, 0.30);
+    --gs-accent:        #ffda00;
+    --gs-accent-bright: #ffe54a;
+    --gs-accent-soft:   rgba(255, 218, 0, 0.12);
+    --gs-accent-line:   rgba(255, 218, 0, 0.35);
 
-    --gs-cool:      #0891b2;
-    --gs-cool-soft: rgba(8, 145, 178, 0.10);
+    --gs-cool:      #7cdfff;
+    --gs-cool-soft: rgba(124, 223, 255, 0.10);
 
-    --gs-low:      #15803d;
-    --gs-low-soft: rgba(21, 128, 61, 0.10);
-    --gs-medium:        #b45309;
-    --gs-medium-soft:   rgba(180, 83, 9, 0.12);
-    --gs-high:          #b91c1c;
-    --gs-high-soft:     rgba(185, 28, 28, 0.10);
-    --gs-critical:      #7f1d1d;
-    --gs-critical-soft: rgba(127, 29, 29, 0.16);
+    --gs-low:      #4ade80;
+    --gs-low-soft: rgba(74, 222, 128, 0.12);
+    --gs-medium:        #f59e0b;
+    --gs-medium-soft:   rgba(245, 158, 11, 0.14);
+    --gs-high:          #ef4444;
+    --gs-high-soft:     rgba(239, 68, 68, 0.14);
+    --gs-critical:      #b91c1c;
+    --gs-critical-soft: rgba(185, 28, 28, 0.20);
 
-    --gs-grid-line: rgba(0,0,0,0.035);
+    --gs-shadow-soft: 0 1px 0 rgba(255,255,255,0.02), 0 12px 32px -12px rgba(0,0,0,0.55);
+    --gs-shadow-pop:  0 1px 0 rgba(255,255,255,0.03), 0 18px 48px -18px rgba(0,0,0,0.7);
+
+    --gs-grid-line: rgba(255,255,255,0.025);
   }
 }
 
@@ -119,10 +128,10 @@ body {
   min-height: 100vh;
   color: var(--gs-text);
   background-color: var(--gs-bg);
-  /* Faint dot-grid — gives the page a control-board atmosphere without distracting */
+  /* Brand splash — yellow top-right, navy bottom-left, faint dot-grid throughout */
   background-image:
-    radial-gradient(1200px 600px at 90% -10%, rgba(232, 164, 92, 0.06), transparent 60%),
-    radial-gradient(900px 600px at -10% 110%, rgba(124, 223, 255, 0.04), transparent 60%),
+    radial-gradient(1200px 600px at 90% -10%, var(--gs-brand-soft), transparent 60%),
+    radial-gradient(900px 600px at -10% 110%, var(--gs-accent-soft), transparent 60%),
     radial-gradient(circle at 1px 1px, var(--gs-grid-line) 1px, transparent 0);
   background-size: auto, auto, 28px 28px;
   background-attachment: fixed;
@@ -145,9 +154,9 @@ code, pre, .mono { font-family: var(--gs-mono); font-feature-settings: 'zero', '
 }
 
 /* Selection */
-::selection { background: var(--gs-accent-soft); color: var(--gs-text-strong); }
+::selection { background: var(--gs-brand-soft); color: var(--gs-text-strong); }
 
-/* Scrollbar — subtle but visible on dark */
+/* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: var(--gs-border-2); border-radius: 6px; border: 2px solid transparent; background-clip: padding-box; }
 ::-webkit-scrollbar-thumb:hover { background: var(--gs-text-faint); background-clip: padding-box; }
@@ -169,7 +178,7 @@ code, pre, .mono { font-family: var(--gs-mono); font-feature-settings: 'zero', '
   content: '';
   width: 0.45rem;
   height: 0.45rem;
-  background: var(--gs-accent);
+  background: var(--gs-brand);
   display: inline-block;
 }
 
