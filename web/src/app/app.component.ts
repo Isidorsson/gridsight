@@ -60,7 +60,7 @@ import { DemoBannerComponent } from './shared/demo-banner.component';
       <span class="sep">·</span>
       <span>ENERGY-CHARTS · LIVE GENERATION · DAY-AHEAD</span>
       <span class="sep">·</span>
-      <span>RECOMMENDATIONS POWERED BY ANTHROPIC CLAUDE</span>
+      <span>RECOMMENDATIONS VIA OPENROUTER · CLAUDE + GPT</span>
     </div>
 
     <main class="app-main">

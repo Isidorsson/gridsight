@@ -154,11 +154,17 @@ paths:
       tags: [recommendations]
       summary: Generate or fetch a maintenance recommendation
       description: |
-        If `ANTHROPIC_API_KEY` is set on the server, the latest open alert and
-        recent telemetry are sent to Claude (with tool-use schema enforcement).
-        Otherwise a hand-authored fixture is selected based on the alert rule.
+        If `OPENROUTER_API_KEY` is set on the server, the latest open alert and
+        recent telemetry are sent to the chosen LLM (Claude or GPT) via OpenRouter,
+        with function-calling schema enforcement. Otherwise a hand-authored fixture
+        is selected based on the alert rule.
       parameters:
         - { in: path, name: id, required: true, schema: { type: string } }
+        - in: query
+          name: model
+          required: false
+          schema: { type: string }
+          description: One of the IDs returned by `/v1/llm/models`. Ignored if not in the allowlist.
       responses:
         '200':
           description: OK
@@ -167,6 +173,32 @@ paths:
               schema: { $ref: '#/components/schemas/Recommendation' }
         '404':
           $ref: '#/components/responses/NotFound'
+  /v1/llm/models:
+    get:
+      tags: [recommendations]
+      summary: List models available for recommendations
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, live]
+                properties:
+                  live:
+                    type: boolean
+                    description: True when OPENROUTER_API_KEY is configured server-side.
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, label, vendor, hint]
+                      properties:
+                        id: { type: string }
+                        label: { type: string }
+                        vendor: { type: string, enum: [anthropic, openai] }
+                        hint: { type: string }
   /v1/alerts:
     get:
       tags: [alerts]
@@ -324,6 +356,7 @@ components:
           type: array
           items: { type: string }
         source: { type: string, enum: [live, fixture] }
+        model: { type: string, nullable: true, description: 'OpenRouter model ID used for live calls; null for fixtures.' }
         generated_at: { type: string, format: date-time }
     BiddingZone:
       type: object

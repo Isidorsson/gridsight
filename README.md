@@ -13,11 +13,11 @@ Two vertical slices behind one design language:
 Angular 18 SPA  ──HTTPS/SSE──►  Express + TS API  ──►  SQLite
                                        │
                                        ├──►  SCADA simulator  (in-process)
-                                       ├──►  Anthropic Claude (env-gated)
+                                       ├──►  OpenRouter (Claude + GPT, env-gated)
                                        └──►  Energy-Charts API (Fraunhofer ISE, mock fallback)
 ```
 
-- **Public demo serves recommendation fixtures** — no API key in deployed env. The real Anthropic integration is in `api/src/domain/recommender.ts` and runs locally when `ANTHROPIC_API_KEY` is set.
+- **Public demo serves recommendation fixtures** — no API key in deployed env. The real LLM integration is in `api/src/domain/recommender.ts` and runs locally when `OPENROUTER_API_KEY` is set; users pick between Claude Sonnet/Opus and GPT-5/mini from a dropdown in the UI.
 - **European grid mix is live by default** — pulls from Energy-Charts (no auth, no key). The frontend ships a 3-way `auto / live / mock` source toggle so you can compare the real upstream against a deterministic synthetic backend on the same UI; live errors fall back to mock automatically. 5-min in-process cache keeps the upstream call rate polite.
 - **Stateless API, env-driven config** — Azure App Service portable.
 

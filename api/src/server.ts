@@ -22,7 +22,7 @@ import { alertsRouter } from './routes/alerts.js';
 import { assetsRouter } from './routes/assets.js';
 import { gridRouter } from './routes/grid.js';
 import { healthRouter } from './routes/health.js';
-import { recommendationsRouter } from './routes/recommendations.js';
+import { recommendationsRouter, llmRouter } from './routes/recommendations.js';
 import { streamRouter } from './routes/stream.js';
 import { seedDatabase } from './db/seed.js';
 
@@ -105,6 +105,7 @@ export function buildApp(): express.Express {
 
   app.use('/v1/assets', assetsRouter);
   app.use('/v1/assets', recommendationsRouter);
+  app.use('/v1/llm', llmRouter);
   app.use('/v1/alerts', alertsRouter);
   app.use('/v1/stream', streamRouter);
   app.use('/v1/grid', gridRouter);
@@ -133,7 +134,7 @@ export async function start(): Promise<void> {
   const server = app.listen(env.PORT, '::', () => {
     console.log(`[server] LISTENING on [::]:${env.PORT}`);
     logger.info(
-      { port: env.PORT, host: '::', env: env.NODE_ENV, llm: env.ANTHROPIC_API_KEY ? 'live' : 'fixture' },
+      { port: env.PORT, host: '::', env: env.NODE_ENV, llm: env.OPENROUTER_API_KEY ? 'live' : 'fixture' },
       'gridsight-api listening',
     );
   });

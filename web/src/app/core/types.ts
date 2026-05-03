@@ -62,7 +62,20 @@ export interface Recommendation {
   confidence: number;
   references?: string[];
   source: 'live' | 'fixture';
+  model: string | null;
   generated_at: string;
+}
+
+export interface ModelOption {
+  id: string;
+  label: string;
+  vendor: 'anthropic' | 'openai';
+  hint: string;
+}
+
+export interface ModelCatalog {
+  items: ModelOption[];
+  live: boolean;
 }
 
 export interface ApiList<T> {

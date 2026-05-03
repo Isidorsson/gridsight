@@ -168,14 +168,15 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
             structured maintenance recommendations from current telemetry + open alerts.
           </p>
           <div class="ai-tags">
-            <span class="tag">tool_use</span>
-            <span class="tag">claude-haiku-4-5</span>
+            <span class="tag">function_calling</span>
+            <span class="tag">claude-sonnet-4.5</span>
+            <span class="tag">gpt-5</span>
             <span class="tag">JSON-validated</span>
             <span class="tag">fixture fallback</span>
           </div>
         </div>
         <footer>
-          <span class="footnote mono">ANTHROPIC_API_KEY=&lt;present&gt; → live · else fixture</span>
+          <span class="footnote mono">OPENROUTER_API_KEY=&lt;present&gt; → live · else fixture</span>
         </footer>
       </article>
 

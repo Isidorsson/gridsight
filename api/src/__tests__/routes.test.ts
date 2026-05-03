@@ -56,7 +56,18 @@ describe('routes', () => {
     const res = await request(app).post(`/v1/assets/${id}/recommendations`);
     expect(res.status).toBe(200);
     expect(res.body.source).toBe('fixture');
+    expect(res.body.model).toBeNull();
     expect(['low', 'medium', 'high', 'critical']).toContain(res.body.urgency);
+  });
+
+  it('GET /v1/llm/models returns the curated allowlist', async () => {
+    const res = await request(app).get('/v1/llm/models');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.items)).toBe(true);
+    expect(res.body.items.length).toBeGreaterThan(0);
+    expect(typeof res.body.live).toBe('boolean');
+    expect(res.body.items[0]).toHaveProperty('id');
+    expect(res.body.items[0]).toHaveProperty('vendor');
   });
 
   it('GET /v1/alerts accepts status filter', async () => {

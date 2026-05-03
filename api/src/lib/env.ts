@@ -10,10 +10,12 @@ const EnvSchema = z.object({
   ),
   DATABASE_URL: trimmed(z.string().min(1)).default('./gridsight.db'),
   CORS_ORIGIN: trimmed(z.string().min(1)).default('http://localhost:4200'),
-  ANTHROPIC_API_KEY: z.preprocess(
+  OPENROUTER_API_KEY: z.preprocess(
     (v) => (typeof v === 'string' ? v.trim() || undefined : v),
     z.string().optional(),
   ),
+  OPENROUTER_BASE_URL: trimmed(z.string().min(1)).default('https://openrouter.ai/api/v1'),
+  OPENROUTER_DEFAULT_MODEL: trimmed(z.string().min(1)).default('anthropic/claude-sonnet-4.5'),
   ENERGY_CHARTS_BASE: trimmed(z.string().min(1)).default('https://api.energy-charts.info'),
   NODE_ENV: z.preprocess(
     (v) => (typeof v === 'string' ? v.trim() : v),
@@ -30,4 +32,4 @@ if (!parsed.success) {
 }
 
 export const env: Env = parsed.data;
-export const liveLLMEnabled = !!env.ANTHROPIC_API_KEY;
+export const liveLLMEnabled = !!env.OPENROUTER_API_KEY;

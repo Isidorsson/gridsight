@@ -16,7 +16,9 @@ import { SseService } from '../../core/sse.service';
 import { TelemetryChartComponent } from './telemetry-chart.component';
 import { SeverityBadgeComponent } from '../../shared/severity-badge.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
-import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/types';
+import type { Alert, Asset, ModelOption, Recommendation, TelemetryReading } from '../../core/types';
+
+const MODEL_STORAGE_KEY = 'gs.rec.model';
 
 @Component({
   selector: 'gs-asset-detail',
@@ -116,8 +118,18 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
 
       <section class="recommendation">
         <header class="section-head">
-          <span class="eyebrow">AI Maintenance · Anthropic</span>
+          <span class="eyebrow">AI Maintenance · OpenRouter</span>
           <h2>Structured maintenance recommendation</h2>
+          @if (models().length > 0) {
+            <label class="model-pick">
+              <span class="lbl mono">MODEL</span>
+              <select [value]="selectedModel()" (change)="onModelChange($event)" [disabled]="recLoading()">
+                @for (m of models(); track m.id) {
+                  <option [value]="m.id">{{ m.label }} · {{ m.hint }}</option>
+                }
+              </select>
+            </label>
+          }
           <button type="button" class="rec-btn"
                   [disabled]="recLoading()" (click)="fetchRecommendation()">
             @if (recLoading()) {
@@ -144,7 +156,7 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
               </span>
               <span class="source mono" [class.live]="rec.source === 'live'">
                 <i-lucide [img]="rec.source === 'live' ? LiveIcon : InertIcon" [size]="11" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-                {{ rec.source === 'live' ? 'CLAUDE LIVE' : 'DEMO FIXTURE' }}
+                {{ rec.source === 'live' ? (rec.model ?? 'LIVE') : 'DEMO FIXTURE' }}
               </span>
             </div>
 
@@ -369,6 +381,39 @@ import type { Alert, Asset, Recommendation, TelemetryReading } from '../../core/
         gap: 0.75rem;
       }
 
+      .model-pick {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-family: var(--gs-mono);
+      }
+      .model-pick .lbl {
+        font-size: 0.62rem;
+        letter-spacing: 0.16em;
+        color: var(--gs-text-faint);
+      }
+      .model-pick select {
+        appearance: none;
+        background: var(--gs-bg-2);
+        color: var(--gs-text);
+        border: 1px solid var(--gs-border);
+        border-radius: var(--gs-radius);
+        font-family: var(--gs-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+        padding: 0.35rem 1.6rem 0.35rem 0.6rem;
+        background-image: linear-gradient(45deg, transparent 50%, var(--gs-text-faint) 50%),
+                          linear-gradient(135deg, var(--gs-text-faint) 50%, transparent 50%);
+        background-position: calc(100% - 12px) 50%, calc(100% - 7px) 50%;
+        background-size: 5px 5px, 5px 5px;
+        background-repeat: no-repeat;
+        cursor: pointer;
+      }
+      .model-pick select:hover:not(:disabled) { border-color: var(--gs-accent-line); }
+      .model-pick select:disabled { opacity: 0.5; cursor: not-allowed; }
+      .model-pick + .rec-btn { margin-left: 0; }
+
       .rec-btn {
         margin-left: auto;
         display: inline-flex;
@@ -556,6 +601,9 @@ export class AssetDetailComponent {
   protected readonly recLoading = signal(false);
   protected readonly recError = signal<string | null>(null);
 
+  protected readonly models = signal<ModelOption[]>([]);
+  protected readonly selectedModel = signal<string>(this.readStoredModel());
+
   protected readonly openAlerts = computed(() => this.alerts().filter((a) => a.status === 'open'));
 
   protected readonly bannerSeverity = computed(() => {
@@ -573,6 +621,17 @@ export class AssetDetailComponent {
 
   constructor() {
     queueMicrotask(() => this.load());
+
+    this.api.listModels().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (cat) => {
+        this.models.set(cat.items);
+        const stored = this.selectedModel();
+        const validIds = new Set(cat.items.map((m) => m.id));
+        if (!validIds.has(stored) && cat.items.length > 0) {
+          this.selectedModel.set(cat.items[0]!.id);
+        }
+      },
+    });
   }
 
   private load(): void {
@@ -613,7 +672,7 @@ export class AssetDetailComponent {
   protected fetchRecommendation(): void {
     this.recLoading.set(true);
     this.recError.set(null);
-    this.api.getRecommendation(this.id()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.api.getRecommendation(this.id(), this.selectedModel()).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (r) => {
         this.recommendation.set(r);
         this.recLoading.set(false);
@@ -623,6 +682,21 @@ export class AssetDetailComponent {
         this.recLoading.set(false);
       },
     });
+  }
+
+  protected onModelChange(ev: Event): void {
+    const target = ev.target as HTMLSelectElement;
+    const id = target.value;
+    this.selectedModel.set(id);
+    try { localStorage.setItem(MODEL_STORAGE_KEY, id); } catch { /* private mode etc — non-fatal */ }
+  }
+
+  private readStoredModel(): string {
+    try {
+      const v = localStorage.getItem(MODEL_STORAGE_KEY);
+      if (v && v.length > 0) return v;
+    } catch { /* private mode etc — non-fatal */ }
+    return 'anthropic/claude-sonnet-4.5';
   }
 
   protected typeLabel(t: Asset['assetType']): string {

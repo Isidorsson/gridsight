@@ -2,10 +2,16 @@ import { Router } from 'express';
 import { db } from '../lib/db.js';
 import { NotFound } from '../lib/errors.js';
 import { getAsset } from '../domain/assets.js';
-import { getRecommendation } from '../domain/recommender.js';
+import { getRecommendation, MODEL_OPTIONS } from '../domain/recommender.js';
+import { liveLLMEnabled } from '../lib/env.js';
 import type { TelemetryReading, Alert } from '../domain/simulator.js';
 
 export const recommendationsRouter = Router({ mergeParams: true });
+export const llmRouter = Router();
+
+llmRouter.get('/models', (_req, res) => {
+  res.json({ items: MODEL_OPTIONS, live: liveLLMEnabled });
+});
 
 interface AlertRow {
   id: string;
@@ -73,7 +79,10 @@ recommendationsRouter.post('/:id/recommendations', async (req, res) => {
     dgaC2h2Ppm: r.dga_c2h2_ppm,
   }));
 
-  const recommendation = await getRecommendation(asset, alert, recentReadings);
+  const requestedModel =
+    typeof req.query.model === 'string' && req.query.model.length > 0 ? req.query.model : undefined;
+
+  const recommendation = await getRecommendation(asset, alert, recentReadings, requestedModel);
 
   db.prepare(
     `INSERT INTO recommendations_cache (asset_id, alert_id, source, payload_json)

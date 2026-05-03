@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -10,6 +10,7 @@ import type {
   DataSource,
   DayAheadPrices,
   GenerationMix,
+  ModelCatalog,
   Recommendation,
   TelemetryReading,
   ZoneSummary,
@@ -35,11 +36,18 @@ export class ApiService {
     );
   }
 
-  getRecommendation(id: string): Observable<Recommendation> {
+  getRecommendation(id: string, model?: string): Observable<Recommendation> {
+    let params = new HttpParams();
+    if (model) params = params.set('model', model);
     return this.http.post<Recommendation>(
       `${this.base}/v1/assets/${encodeURIComponent(id)}/recommendations`,
       {},
+      { params },
     );
+  }
+
+  listModels(): Observable<ModelCatalog> {
+    return this.http.get<ModelCatalog>(`${this.base}/v1/llm/models`);
   }
 
   listAlerts(status: 'open' | 'ack' | 'resolved' | 'all' = 'open'): Observable<ApiList<Alert>> {

@@ -15,12 +15,12 @@ import { LucideAngularModule, FlaskConical, Github, ArrowUpRight } from 'lucide-
       <div class="text">
         <p>
           Telemetry is simulated; AI maintenance recommendations are <strong>hand-authored fixtures</strong>,
-          not live Claude calls — the deployed demo intentionally ships without an Anthropic API key.
+          not live LLM calls — the deployed demo intentionally ships without an OpenRouter API key.
         </p>
         <p class="sub">
-          The real Anthropic integration with tool-use schema enforcement lives in
-          <code>api/src/domain/recommender.ts</code> and runs locally when
-          <code>ANTHROPIC_API_KEY</code> is set.
+          The real OpenRouter integration (Claude Sonnet/Opus + GPT-5, tool-use schema enforced)
+          lives in <code>api/src/domain/recommender.ts</code> and runs locally when
+          <code>OPENROUTER_API_KEY</code> is set.
         </p>
       </div>
       <a class="repo-link"
