@@ -63,14 +63,20 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
       }
     </nav>
 
-    @if (loading()) {
+    @if (loading() && !mix()) {
       <div class="loading">
         <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="22" [strokeWidth]="1.6"></i-lucide>
         <p class="mono">FETCHING ENTSO-E DATA…</p>
       </div>
-    } @else if (error()) {
+    } @else if (error() && !mix()) {
       <p class="err">Could not load grid data — {{ error() }}</p>
     } @else if (mix()) {
+      @if (loading()) {
+        <div class="updating mono" aria-live="polite">
+          <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="11" [strokeWidth]="2"></i-lucide>
+          UPDATING {{ zoneLabel(selected()) }}…
+        </div>
+      }
       @if (mix(); as m) {
       <section class="kpi-row">
         <div class="kpi">
@@ -563,6 +569,19 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
         font-size: 0.7rem;
         letter-spacing: 0.16em;
         color: var(--gs-text-faint);
+      }
+      .updating {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.3rem 0.6rem;
+        margin-bottom: 0.85rem;
+        font-size: 0.62rem;
+        letter-spacing: 0.16em;
+        color: var(--gs-accent);
+        background: var(--gs-accent-soft);
+        border: 1px solid var(--gs-accent-line);
+        border-radius: 4px;
       }
       .err {
         background: var(--gs-high-soft);
