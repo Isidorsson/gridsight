@@ -37,10 +37,10 @@ import { LanguageService } from '../core/i18n/language.service';
         gap: 1.25rem;
         padding: 0.85rem 1.1rem;
         background:
-          linear-gradient(90deg, var(--gs-accent-soft), transparent 50%),
+          linear-gradient(90deg, var(--gs-brand-soft), transparent 55%),
           var(--gs-surface);
         border: 1px solid var(--gs-border);
-        border-left: 3px solid var(--gs-accent);
+        border-left: 4px solid var(--gs-brand);
         color: var(--gs-text);
         border-radius: var(--gs-radius);
         font-size: 0.86rem;

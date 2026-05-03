@@ -1,58 +1,58 @@
 @use '@angular/material' as mat;
 
 /*
- * GridSight design tokens — Vattenfall reskin
+ * GridSight design tokens
  *   Type:     Inter (UI), IBM Plex Mono (data), system serif (editorial accent)
- *   Brand:    Vattenfall Yellow #FFDA00 — constant across modes, used for splashes/highlights
- *   Accent:   navy in light, yellow in dark — the active/link/brand-mark color
- *   Mode:     Light default (Scandinavian clean), dark via prefers-color-scheme
- *   Severity: industry-conventional green / amber / red, contrast-tuned per mode
+ *   Brand:    Sunflower Yellow #ffda00 — splashes/highlights, eyebrow dot, hero bands
+ *   Accent:   Charcoal #343434 (light) / Yellow (dark) — links/active/icons
+ *   Mode:     Light default, dark via prefers-color-scheme
+ *   Severity: green/orange/red/magenta-pink (pink for critical)
  */
 
 :root {
   color-scheme: light dark;
 
-  /* Surfaces — clean white with subtle grays */
+  /* Surfaces — white-led, warm light greys */
   --gs-bg:        #ffffff;
-  --gs-bg-2:      #f7f8fa;
+  --gs-bg-2:      #f8f8f6;
   --gs-surface:   #ffffff;
-  --gs-surface-2: #f4f5f7;
-  --gs-surface-3: #eceef2;
-  --gs-border:    #e1e4ea;
-  --gs-border-2:  #c8ccd4;
+  --gs-surface-2: #f2f2f2;
+  --gs-surface-3: #e8e8e9;
+  --gs-border:    #e8e8e9;
+  --gs-border-2:  #cdd1d4;
   --gs-divider:   rgba(0,0,0,0.06);
 
-  /* Text */
-  --gs-text:        #0f1b2d;
-  --gs-text-strong: #000814;
-  --gs-text-muted:  #5a6373;
-  --gs-text-faint:  #8a91a0;
+  /* Text — soft black #343434, not pure black */
+  --gs-text:        #343434;
+  --gs-text-strong: #000000;
+  --gs-text-muted:  #69788c;
+  --gs-text-faint:  #888888;
 
-  /* Brand — Vattenfall Yellow. Constant across modes. Used for splashes, eyebrow dot, gradients. */
+  /* Brand — Sunflower Yellow #ffda00. Constant across modes. */
   --gs-brand:        #ffda00;
-  --gs-brand-bright: #ffe54a;
-  --gs-brand-soft:   rgba(255, 218, 0, 0.18);
-  --gs-brand-line:   rgba(255, 218, 0, 0.45);
+  --gs-brand-bright: #ffe34a;
+  --gs-brand-soft:   rgba(255, 218, 0, 0.20);
+  --gs-brand-line:   rgba(255, 218, 0, 0.55);
 
-  /* Accent — navy in light. Wherever components currently call var(--gs-accent). */
-  --gs-accent:        #0068a1;
-  --gs-accent-bright: #0083c7;
-  --gs-accent-soft:   rgba(0, 104, 161, 0.10);
-  --gs-accent-line:   rgba(0, 104, 161, 0.30);
+  /* Accent — charcoal for interactive/text role */
+  --gs-accent:        #343434;
+  --gs-accent-bright: #000000;
+  --gs-accent-soft:   rgba(52, 52, 52, 0.06);
+  --gs-accent-line:   rgba(52, 52, 52, 0.18);
 
-  /* Cool secondary — Nordic teal for data series, info chips */
-  --gs-cool:        #007a7a;
-  --gs-cool-soft:   rgba(0, 122, 122, 0.08);
+  /* Cool secondary — dark-moss for chart/data series, used sparingly */
+  --gs-cool:        #005c63;
+  --gs-cool-soft:   rgba(0, 92, 99, 0.08);
 
-  /* Semantic — severities (industry-conventional, tuned for white bg) */
-  --gs-low:           #1b7f3a;
-  --gs-low-soft:      rgba(27, 127, 58, 0.10);
-  --gs-medium:        #b45309;
-  --gs-medium-soft:   rgba(180, 83, 9, 0.12);
-  --gs-high:          #b91c1c;
-  --gs-high-soft:     rgba(185, 28, 28, 0.10);
-  --gs-critical:      #7f1d1d;
-  --gs-critical-soft: rgba(127, 29, 29, 0.16);
+  /* Semantic — severity palette */
+  --gs-low:           #3dc07c;
+  --gs-low-soft:      rgba(61, 192, 124, 0.12);
+  --gs-medium:        #f5a623;
+  --gs-medium-soft:   rgba(245, 166, 35, 0.14);
+  --gs-high:          #f93b18;
+  --gs-high-soft:     rgba(249, 59, 24, 0.10);
+  --gs-critical:      #d1266b;
+  --gs-critical-soft: rgba(209, 38, 107, 0.14);
 
   /* Type families */
   --gs-sans:   'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -65,44 +65,45 @@
   --gs-radius-3: 4px;
 
   /* Shadow — gentle on light surfaces */
-  --gs-shadow-soft: 0 1px 2px rgba(15, 27, 45, 0.04), 0 8px 24px -12px rgba(15, 27, 45, 0.10);
-  --gs-shadow-pop:  0 1px 3px rgba(15, 27, 45, 0.05), 0 18px 40px -18px rgba(15, 27, 45, 0.18);
+  --gs-shadow-soft: 0 1px 2px rgba(15, 15, 15, 0.04), 0 8px 24px -12px rgba(15, 15, 15, 0.10);
+  --gs-shadow-pop:  0 1px 3px rgba(15, 15, 15, 0.05), 0 18px 40px -18px rgba(15, 15, 15, 0.18);
 
-  --gs-grid-line: rgba(15, 27, 45, 0.04);
+  --gs-grid-line: rgba(15, 15, 15, 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --gs-bg:        #061327;
-    --gs-bg-2:      #08182f;
-    --gs-surface:   #0a1d36;
-    --gs-surface-2: #0e2440;
-    --gs-surface-3: #142d4f;
-    --gs-border:    #1a2c4a;
-    --gs-border-2:  #294068;
+    /* Charcoal dark mode — not navy. Yellow pops harder on neutral dark. */
+    --gs-bg:        #141414;
+    --gs-bg-2:      #1a1a1a;
+    --gs-surface:   #1f1f1f;
+    --gs-surface-2: #262626;
+    --gs-surface-3: #2e2e2e;
+    --gs-border:    #2a2a2a;
+    --gs-border-2:  #3a3a3a;
     --gs-divider:   rgba(255,255,255,0.06);
 
-    --gs-text:        #e7ecf2;
+    --gs-text:        #ededed;
     --gs-text-strong: #ffffff;
-    --gs-text-muted:  #8a96a6;
-    --gs-text-faint:  #5d6776;
+    --gs-text-muted:  #a0a0a0;
+    --gs-text-faint:  #6e6e6e;
 
     --gs-accent:        #ffda00;
-    --gs-accent-bright: #ffe54a;
+    --gs-accent-bright: #ffe34a;
     --gs-accent-soft:   rgba(255, 218, 0, 0.12);
     --gs-accent-line:   rgba(255, 218, 0, 0.35);
 
-    --gs-cool:      #7cdfff;
-    --gs-cool-soft: rgba(124, 223, 255, 0.10);
+    --gs-cool:      #6dd0d6;
+    --gs-cool-soft: rgba(109, 208, 214, 0.10);
 
-    --gs-low:      #4ade80;
-    --gs-low-soft: rgba(74, 222, 128, 0.12);
-    --gs-medium:        #f59e0b;
-    --gs-medium-soft:   rgba(245, 158, 11, 0.14);
-    --gs-high:          #ef4444;
-    --gs-high-soft:     rgba(239, 68, 68, 0.14);
-    --gs-critical:      #b91c1c;
-    --gs-critical-soft: rgba(185, 28, 28, 0.20);
+    --gs-low:           #4ade80;
+    --gs-low-soft:      rgba(74, 222, 128, 0.12);
+    --gs-medium:        #f5a623;
+    --gs-medium-soft:   rgba(245, 166, 35, 0.16);
+    --gs-high:          #ff5a3a;
+    --gs-high-soft:     rgba(255, 90, 58, 0.14);
+    --gs-critical:      #e94385;
+    --gs-critical-soft: rgba(233, 67, 133, 0.18);
 
     --gs-shadow-soft: 0 1px 0 rgba(255,255,255,0.02), 0 12px 32px -12px rgba(0,0,0,0.55);
     --gs-shadow-pop:  0 1px 0 rgba(255,255,255,0.03), 0 18px 48px -18px rgba(0,0,0,0.7);
@@ -128,12 +129,11 @@ body {
   min-height: 100vh;
   color: var(--gs-text);
   background-color: var(--gs-bg);
-  /* Brand splash — yellow top-right, navy bottom-left, faint dot-grid throughout */
+  /* Brand splash — yellow band top-right, faint warm grid throughout. */
   background-image:
-    radial-gradient(1200px 600px at 90% -10%, var(--gs-brand-soft), transparent 60%),
-    radial-gradient(900px 600px at -10% 110%, var(--gs-accent-soft), transparent 60%),
+    radial-gradient(1400px 700px at 95% -5%, var(--gs-brand-soft), transparent 55%),
     radial-gradient(circle at 1px 1px, var(--gs-grid-line) 1px, transparent 0);
-  background-size: auto, auto, 28px 28px;
+  background-size: auto, 28px 28px;
   background-attachment: fixed;
   letter-spacing: -0.005em;
   line-height: 1.5;
@@ -142,8 +142,16 @@ body {
 a {
   color: var(--gs-accent);
   text-decoration: none;
-  transition: color 0.15s;
-  &:hover { color: var(--gs-accent-bright); text-decoration: underline; text-underline-offset: 3px; }
+  transition: color 0.15s, background 0.15s;
+  background-image: linear-gradient(var(--gs-brand), var(--gs-brand));
+  background-repeat: no-repeat;
+  background-size: 0% 0.12em;
+  background-position: 0 88%;
+  &:hover {
+    color: var(--gs-accent-bright);
+    background-size: 100% 0.35em;
+    text-decoration: none;
+  }
 }
 
 code, pre, .mono { font-family: var(--gs-mono); font-feature-settings: 'zero', 'ss02'; }
@@ -153,8 +161,8 @@ code, pre, .mono { font-family: var(--gs-mono); font-feature-settings: 'zero', '
   font-variant-numeric: tabular-nums;
 }
 
-/* Selection */
-::selection { background: var(--gs-brand-soft); color: var(--gs-text-strong); }
+/* Selection — yellow brand splash */
+::selection { background: var(--gs-brand); color: #000; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -176,13 +184,13 @@ code, pre, .mono { font-family: var(--gs-mono); font-feature-settings: 'zero', '
 }
 .eyebrow::before {
   content: '';
-  width: 0.45rem;
-  height: 0.45rem;
+  width: 0.5rem;
+  height: 0.5rem;
   background: var(--gs-brand);
   display: inline-block;
 }
 
-/* Material overrides — keep our palette consistent */
+/* Material overrides — keep palette consistent */
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-container-color: var(--gs-surface-3);
   --mat-snack-bar-button-color: var(--gs-accent);

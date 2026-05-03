@@ -362,10 +362,10 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
         transform: translateY(-1px);
       }
       .cta.primary {
-        background: linear-gradient(180deg, var(--gs-accent-soft), transparent 80%), var(--gs-surface);
-        border-color: var(--gs-accent-line);
+        background: linear-gradient(180deg, var(--gs-brand-soft), transparent 80%), var(--gs-surface);
+        border-color: var(--gs-brand);
       }
-      .cta.primary:hover { border-color: var(--gs-accent); }
+      .cta.primary:hover { border-color: var(--gs-brand-bright); background: var(--gs-brand-soft); }
       .cta-num {
         font-family: var(--gs-mono);
         font-size: 0.7rem;
@@ -606,8 +606,8 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
         content: '';
         position: absolute;
         top: 0; bottom: 0; left: 0;
-        width: 3px;
-        background: linear-gradient(180deg, var(--gs-accent), transparent);
+        width: 4px;
+        background: var(--gs-brand);
       }
       .feat header {
         display: flex;

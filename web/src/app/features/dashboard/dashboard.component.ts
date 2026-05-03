@@ -126,11 +126,14 @@ type FilterMode = 'all' | 'with_alerts';
       .page-head h1 .hl {
         font-family: var(--gs-mono);
         font-size: 0.85em;
-        color: var(--gs-accent);
+        color: var(--gs-text-strong);
         font-weight: 500;
         font-variant-numeric: tabular-nums;
-        padding: 0 0.15em;
-        border-bottom: 1px solid var(--gs-accent-line);
+        padding: 0 0.2em;
+        background-image: linear-gradient(var(--gs-brand), var(--gs-brand));
+        background-repeat: no-repeat;
+        background-size: 100% 0.42em;
+        background-position: 0 88%;
       }
       .page-head .lede {
         margin: 0;
@@ -169,9 +172,9 @@ type FilterMode = 'all' | 'with_alerts';
       }
       .stat.active {
         background:
-          linear-gradient(180deg, var(--gs-accent-soft), transparent 80%),
+          linear-gradient(180deg, var(--gs-brand-soft), transparent 80%),
           var(--gs-surface);
-        box-shadow: inset 0 1px 0 var(--gs-accent-line);
+        box-shadow: inset 0 2px 0 var(--gs-brand);
       }
       .stat-label {
         font-family: var(--gs-mono);

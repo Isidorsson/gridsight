@@ -112,9 +112,12 @@ import { LanguagePickerComponent } from './shared/language-picker.component';
       }
       .brand:hover { text-decoration: none; }
       .brand-mark {
-        width: 26px;
-        height: 26px;
-        color: var(--gs-accent);
+        width: 28px;
+        height: 28px;
+        padding: 4px;
+        color: #000000;
+        background: var(--gs-brand);
+        border-radius: 4px;
         flex: none;
       }
       .brand-words { display: flex; flex-direction: column; line-height: 1.05; }

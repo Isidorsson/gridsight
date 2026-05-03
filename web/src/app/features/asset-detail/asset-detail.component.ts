@@ -228,8 +228,8 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
         content: '';
         position: absolute;
         top: 0; bottom: 0; left: 0;
-        width: 3px;
-        background: linear-gradient(180deg, var(--gs-accent), transparent);
+        width: 4px;
+        background: var(--gs-brand);
       }
       .hero h1 {
         margin: 0.45rem 0 0.5rem;
@@ -421,14 +421,14 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
         font-size: 0.72rem;
         letter-spacing: 0.12em;
         font-weight: 600;
-        background: var(--gs-accent);
-        color: #1a0e02;
+        background: var(--gs-brand);
+        color: #000000;
         border: 0;
         border-radius: var(--gs-radius);
         cursor: pointer;
         transition: background 0.15s, transform 0.1s;
       }
-      .rec-btn:hover:not(:disabled) { background: var(--gs-accent-bright); }
+      .rec-btn:hover:not(:disabled) { background: var(--gs-brand-bright); }
       .rec-btn:active:not(:disabled) { transform: translateY(1px); }
       .rec-btn:disabled { opacity: 0.55; cursor: progress; }
       .rec-btn .spark { font-size: 0.85rem; }
