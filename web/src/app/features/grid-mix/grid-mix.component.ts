@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LucideAngularModule, Loader2, Wind, Zap, Leaf, Flame, RefreshCcw } from 'lucide-angular';
 import { ApiService } from '../../core/api.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { DonutChartComponent, type DonutSlice } from '../../shared/donut-chart.component';
 import { SparklineComponent } from '../../shared/sparkline.component';
 import { fuelColor } from '../../shared/fuel';
@@ -17,20 +18,19 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
   imports: [CommonModule, LucideAngularModule, DonutChartComponent, SparklineComponent],
   template: `
     <section class="page-head">
-      <span class="eyebrow">European Grid · 03 Live mix</span>
+      <span class="eyebrow">{{ i18n.t('grid.eyebrow') }}</span>
       <h1>
-        How fossil-free is the grid <span class="hl">right now</span>?
+        {{ i18n.t('grid.headline.prefix') }} <span class="hl">{{ i18n.t('grid.headline.highlight') }}</span>{{ i18n.t('grid.headline.suffix') }}
       </h1>
       <p class="lede">
-        Generation mix and day-ahead prices across the European bidding zones, sourced from the
-        <a href="https://api.energy-charts.info" target="_blank" rel="noopener">Energy-Charts API</a>
-        (Fraunhofer ISE). Switch zones to compare a hydro/nuclear backbone (Sweden, Norway, France)
-        against fossil-heavy markets (Poland, Netherlands).
+        {{ i18n.t('grid.lede.prefix') }}
+        <a href="https://api.energy-charts.info" target="_blank" rel="noopener">{{ i18n.t('grid.lede.linkText') }}</a>
+        {{ i18n.t('grid.lede.suffix') }}
       </p>
     </section>
 
     <div class="source-bar" role="group" aria-label="Data source">
-      <span class="src-lbl mono">DATA SOURCE</span>
+      <span class="src-lbl mono">{{ i18n.t('grid.source.label') }}</span>
       <div class="src-toggle">
         @for (s of sourceOptions; track s.value) {
           <button type="button"
@@ -38,16 +38,16 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
                   [class.active]="source() === s.value"
                   (click)="setSource(s.value)"
                   [attr.aria-pressed]="source() === s.value"
-                  [title]="s.hint">
+                  [title]="sourceHint(s.value)">
             <span class="src-dot" [class]="s.value"></span>
             {{ s.label }}
           </button>
         }
       </div>
       <span class="src-hint mono">
-        @if (source() === 'auto') { Live first, mock fallback }
-        @else if (source() === 'live') { Energy-Charts (Fraunhofer ISE) }
-        @else { Synthetic, deterministic }
+        @if (source() === 'auto') { {{ i18n.t('grid.source.hint.auto') }} }
+        @else if (source() === 'live') { {{ i18n.t('grid.source.hint.live') }} }
+        @else { {{ i18n.t('grid.source.hint.mock') }} }
       </span>
     </div>
 
@@ -66,38 +66,38 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
     @if (loading() && !mix()) {
       <div class="loading">
         <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="22" [strokeWidth]="1.6"></i-lucide>
-        <p class="mono">FETCHING ENTSO-E DATA…</p>
+        <p class="mono">{{ i18n.t('grid.loading') }}</p>
       </div>
     } @else if (error() && !mix()) {
-      <p class="err">Could not load grid data — {{ error() }}</p>
+      <p class="err">{{ i18n.t('grid.error.couldNotLoad') }} {{ error() }}</p>
     } @else if (mix()) {
       @if (loading()) {
         <div class="updating mono" aria-live="polite">
           <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="11" [strokeWidth]="2"></i-lucide>
-          UPDATING {{ zoneLabel(selected()) }}…
+          {{ i18n.t('grid.updating') }} {{ zoneLabel(selected()) }}…
         </div>
       }
       @if (mix(); as m) {
       <section class="kpi-row">
         <div class="kpi">
-          <span class="lbl">Total generation</span>
+          <span class="lbl">{{ i18n.t('grid.kpi.totalGen') }}</span>
           <span class="val">{{ formatMw(m.totalMw) }}</span>
-          <span class="unit">at {{ formatTime(m.ts) }}</span>
+          <span class="unit">{{ i18n.t('grid.kpi.totalGen.at') }} {{ formatTime(m.ts) }}</span>
         </div>
         <div class="kpi" [class.alarm]="m.fossilFreeShare < 0.5"
                           [class.warn]="m.fossilFreeShare >= 0.5 && m.fossilFreeShare < 0.85"
                           [class.good]="m.fossilFreeShare >= 0.85">
           <span class="lbl">
             <i-lucide [img]="LeafIcon" [size]="11" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-            Fossil-free share
+            {{ i18n.t('grid.kpi.fossilFree') }}
           </span>
           <span class="val">{{ m.fossilFreeShare * 100 | number: '1.0-1' }}<em>%</em></span>
-          <span class="unit">{{ fossilFreeMw(m) }} clean</span>
+          <span class="unit">{{ fossilFreeMw(m) }} {{ i18n.t('grid.kpi.fossilFree.unit') }}</span>
         </div>
         <div class="kpi" [class.alarm]="currentPrice() > 100" [class.warn]="currentPrice() > 60 && currentPrice() <= 100">
           <span class="lbl">
             <i-lucide [img]="ZapIcon" [size]="11" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-            Day-ahead — now
+            {{ i18n.t('grid.kpi.dayAhead') }}
           </span>
           <span class="val">{{ currentPrice() | number: '1.2-2' }}<em>€/MWh</em></span>
           <span class="unit">{{ priceTrendLabel() }}</span>
@@ -105,31 +105,31 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
         <div class="kpi">
           <span class="lbl">
             <i-lucide [img]="topFuelIcon()" [size]="11" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-            Lead source
+            {{ i18n.t('grid.kpi.lead') }}
           </span>
           <span class="val small">{{ m.slices.length ? m.slices[0].label : '—' }}</span>
-          <span class="unit">{{ leadShare() | number: '1.0-1' }}% of mix</span>
+          <span class="unit">{{ leadShare() | number: '1.0-1' }}{{ i18n.t('grid.kpi.lead.share') }}</span>
         </div>
       </section>
 
       <div class="grid-2">
         <section class="panel mix-panel">
           <header class="section-head">
-            <span class="eyebrow">Generation mix</span>
-            <h2>By fuel · MW</h2>
+            <span class="eyebrow">{{ i18n.t('grid.panel.mix.eyebrow') }}</span>
+            <h2>{{ i18n.t('grid.panel.mix.title') }}</h2>
             <span class="src" [class.live]="m.source === 'live'">{{ sourceLabel(m.source) }}</span>
           </header>
           <gs-donut-chart
             [slices]="donutSlices()"
             [centerValue]="(m.fossilFreeShare * 100 | number: '1.0-1') + '%'"
-            centerLabel="FOSSIL-FREE"
-            [ariaLabel]="'Generation mix donut for ' + zoneLabel(m.zone)" />
+            [centerLabel]="i18n.t('grid.panel.mix.center')"
+            [ariaLabel]="i18n.t('grid.panel.mix.aria') + ' ' + zoneLabel(m.zone)" />
         </section>
 
         <section class="panel price-panel">
           <header class="section-head">
-            <span class="eyebrow">Day-ahead price</span>
-            <h2>Hourly · today</h2>
+            <span class="eyebrow">{{ i18n.t('grid.panel.price.eyebrow') }}</span>
+            <h2>{{ i18n.t('grid.panel.price.title') }}</h2>
             @if (prices(); as p) {
               <span class="src" [class.live]="p.source === 'live'">{{ sourceLabel(p.source) }}</span>
             }
@@ -137,17 +137,17 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
           @if (prices(); as p) {
             <div class="price-summary">
               <div class="ps-stat">
-                <span class="lbl">Min</span>
+                <span class="lbl">{{ i18n.t('grid.panel.price.min') }}</span>
                 <strong>{{ minPrice() | number: '1.2-2' }}</strong>
                 <em>€/MWh</em>
               </div>
               <div class="ps-stat">
-                <span class="lbl">Avg</span>
+                <span class="lbl">{{ i18n.t('grid.panel.price.avg') }}</span>
                 <strong>{{ avgPrice() | number: '1.2-2' }}</strong>
                 <em>€/MWh</em>
               </div>
               <div class="ps-stat">
-                <span class="lbl">Max</span>
+                <span class="lbl">{{ i18n.t('grid.panel.price.max') }}</span>
                 <strong>{{ maxPrice() | number: '1.2-2' }}</strong>
                 <em>€/MWh</em>
               </div>
@@ -157,25 +157,25 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
               <gs-sparkline
                 [values]="priceValues()"
                 color="var(--gs-accent)"
-                [ariaLabel]="'24h day-ahead price for ' + zoneLabel(m.zone)" />
+                [ariaLabel]="i18n.t('grid.panel.price.aria') + ' ' + zoneLabel(m.zone)" />
               <div class="hour-axis" aria-hidden="true">
                 <span>00</span><span>06</span><span>12</span><span>18</span><span>23</span>
               </div>
             </div>
           } @else {
-            <p class="empty mono">NO PRICE DATA</p>
+            <p class="empty mono">{{ i18n.t('grid.panel.price.empty') }}</p>
           }
         </section>
       </div>
 
       <section class="panel compare-panel">
         <header class="section-head">
-          <span class="eyebrow">Cross-zone comparison</span>
-          <h2>Fossil-free share &amp; current price · {{ summaries().length }} zones</h2>
+          <span class="eyebrow">{{ i18n.t('grid.compare.eyebrow') }}</span>
+          <h2>{{ i18n.t('grid.compare.title.prefix') }} {{ summaries().length }} {{ i18n.t('grid.compare.title.suffix') }}</h2>
           <button type="button" class="refresh" (click)="reload()" [disabled]="reloading()">
             <i-lucide [img]="reloading() ? LoaderIcon : RefreshIcon"
                       [class.gs-spin]="reloading()" [size]="12" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-            REFRESH
+            {{ i18n.t('grid.compare.refresh') }}
           </button>
         </header>
         <ul class="compare-grid">
@@ -190,10 +190,10 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
                                 [class.mid]="s.fossilFreeShare >= 0.5 && s.fossilFreeShare < 0.85"
                                 [class.low]="s.fossilFreeShare < 0.5">
                 <span class="fill" [style.width.%]="s.fossilFreeShare * 100"></span>
-                <span class="bar-lbl mono">{{ s.fossilFreeShare * 100 | number: '1.0-0' }}% clean</span>
+                <span class="bar-lbl mono">{{ s.fossilFreeShare * 100 | number: '1.0-0' }}% {{ i18n.t('grid.compare.clean') }}</span>
               </div>
               <div class="zoneline-foot mono">
-                {{ formatMw(s.totalMw) }} · top: {{ s.topFuel.label }}
+                {{ formatMw(s.totalMw) }} · {{ i18n.t('grid.compare.top') }} {{ s.topFuel.label }}
               </div>
             </li>
           }
@@ -604,6 +604,7 @@ const SOURCE_STORAGE_KEY = 'gs.grid.source';
 })
 export class GridMixComponent {
   private readonly api = inject(ApiService);
+  protected readonly i18n = inject(LanguageService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly LoaderIcon = Loader2;
@@ -623,11 +624,19 @@ export class GridMixComponent {
   protected readonly error = signal<string | null>(null);
   protected readonly source = signal<DataSource>(this.readStoredSource());
 
-  protected readonly sourceOptions: ReadonlyArray<{ value: DataSource; label: string; hint: string }> = [
-    { value: 'auto', label: 'AUTO', hint: 'Try live, fall back to mock if upstream fails' },
-    { value: 'live', label: 'LIVE', hint: 'Force live Energy-Charts call' },
-    { value: 'mock', label: 'MOCK', hint: 'Force the deterministic synthetic backend' },
+  protected readonly sourceOptions: ReadonlyArray<{ value: DataSource; label: string }> = [
+    { value: 'auto', label: 'AUTO' },
+    { value: 'live', label: 'LIVE' },
+    { value: 'mock', label: 'MOCK' },
   ];
+
+  protected sourceHint(v: DataSource): string {
+    switch (v) {
+      case 'auto': return this.i18n.t('grid.source.auto.hint');
+      case 'live': return this.i18n.t('grid.source.live.hint');
+      case 'mock': return this.i18n.t('grid.source.mock.hint');
+    }
+  }
 
   protected readonly donutSlices = computed<DonutSlice[]>(() => {
     const m = this.mix();
@@ -673,11 +682,11 @@ export class GridMixComponent {
 
   protected readonly priceTrendLabel = computed(() => {
     const v = this.priceValues();
-    if (v.length < 2) return '24h flat';
+    if (v.length < 2) return this.i18n.t('grid.kpi.priceTrend.flat');
     const max = Math.max(...v);
     const min = Math.min(...v);
-    if (max === 0) return '24h flat';
-    return `${((max - min) / Math.max(min, 0.01) * 100).toFixed(0)}% spread today`;
+    if (max === 0) return this.i18n.t('grid.kpi.priceTrend.flat');
+    return `${((max - min) / Math.max(min, 0.01) * 100).toFixed(0)}% ${this.i18n.t('grid.kpi.priceTrend.spread')}`;
   });
 
   protected readonly topFuelIcon = computed(() => {
@@ -768,7 +777,7 @@ export class GridMixComponent {
   }
 
   protected sourceLabel(s: 'mock' | 'live'): string {
-    return s === 'live' ? 'ENTSO-E LIVE' : 'DEMO · MOCK';
+    return s === 'live' ? this.i18n.t('grid.source.live.label') : this.i18n.t('grid.source.mock.label');
   }
 
   protected zoneLabel(code: string): string {

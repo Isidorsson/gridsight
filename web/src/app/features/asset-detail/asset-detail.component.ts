@@ -13,6 +13,7 @@ import {
 } from 'lucide-angular';
 import { ApiService } from '../../core/api.service';
 import { SseService } from '../../core/sse.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { TelemetryChartComponent } from './telemetry-chart.component';
 import { SeverityBadgeComponent } from '../../shared/severity-badge.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
@@ -35,22 +36,22 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
   template: `
     <a class="back" routerLink="/fleet">
       <i-lucide [img]="BackIcon" [size]="14" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-      Fleet overview
+      {{ i18n.t('asset.back') }}
     </a>
 
     @if (loading()) {
       <div class="loading">
         <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="22" [strokeWidth]="1.6"></i-lucide>
-        <p class="mono">FETCHING ASSET RECORD…</p>
+        <p class="mono">{{ i18n.t('asset.loading') }}</p>
       </div>
     } @else if (error()) {
-      <gs-empty-state icon="error_outline" title="Asset not found" [description]="error()!" />
+      <gs-empty-state icon="error_outline" [title]="i18n.t('asset.notFound')" [description]="error()!" />
     }
 
     @if (asset(); as a) {
       <header class="hero">
         <div class="hero-left">
-          <span class="eyebrow">Asset · {{ typeLabel(a.assetType) }}</span>
+          <span class="eyebrow">{{ i18n.t('asset.eyebrow.prefix') }} {{ typeLabel(a.assetType) }}</span>
           <h1>{{ a.name }}</h1>
           <p class="meta">
             <code>{{ a.id }}</code>
@@ -59,12 +60,12 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
           </p>
         </div>
         <dl class="specs">
-          <div><dt>Voltage</dt><dd>{{ a.primaryVoltageKv }} / {{ a.secondaryVoltageKv }} kV</dd></div>
-          <div><dt>Rated</dt><dd>{{ a.ratedPowerKva }} kVA</dd></div>
-          <div><dt>Cooling</dt><dd>{{ a.coolingClass }}</dd></div>
-          <div><dt>Oil</dt><dd>{{ a.oilType }}</dd></div>
-          <div><dt>Installed</dt><dd>{{ a.installYear }}</dd></div>
-          <div><dt>Last insp.</dt><dd>{{ a.lastInspectionDate ?? '—' }}</dd></div>
+          <div><dt>{{ i18n.t('asset.spec.voltage') }}</dt><dd>{{ a.primaryVoltageKv }} / {{ a.secondaryVoltageKv }} kV</dd></div>
+          <div><dt>{{ i18n.t('asset.spec.rated') }}</dt><dd>{{ a.ratedPowerKva }} kVA</dd></div>
+          <div><dt>{{ i18n.t('asset.spec.cooling') }}</dt><dd>{{ a.coolingClass }}</dd></div>
+          <div><dt>{{ i18n.t('asset.spec.oil') }}</dt><dd>{{ a.oilType }}</dd></div>
+          <div><dt>{{ i18n.t('asset.spec.installed') }}</dt><dd>{{ a.installYear }}</dd></div>
+          <div><dt>{{ i18n.t('asset.spec.lastInsp') }}</dt><dd>{{ a.lastInspectionDate ?? '—' }}</dd></div>
         </dl>
       </header>
 
@@ -73,9 +74,9 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
           <header>
             <i-lucide class="alarm-icon" [img]="AlertIcon" [size]="16" [strokeWidth]="2" aria-hidden="true"></i-lucide>
             <h2>
-              {{ openAlerts().length }} OPEN {{ openAlerts().length === 1 ? 'ALERT' : 'ALERTS' }}
+              {{ openAlerts().length }} {{ openAlerts().length === 1 ? i18n.t('asset.alerts.open.singular') : i18n.t('asset.alerts.open.plural') }}
             </h2>
-            <span class="raised-at mono">CONDITION ABNORMAL</span>
+            <span class="raised-at mono">{{ i18n.t('asset.alerts.condition') }}</span>
           </header>
           <ul>
             @for (al of openAlerts(); track al.id) {
@@ -91,38 +92,38 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
 
       <section class="charts-section">
         <header class="section-head">
-          <span class="eyebrow">Telemetry · Live</span>
-          <h2>Realtime sensor stream</h2>
-          <span class="hint mono">{{ readings().length }} samples · 5s interval</span>
+          <span class="eyebrow">{{ i18n.t('asset.charts.eyebrow') }}</span>
+          <h2>{{ i18n.t('asset.charts.title') }}</h2>
+          <span class="hint mono">{{ readings().length }} {{ i18n.t('asset.charts.hint') }}</span>
         </header>
         @if (readings().length > 0) {
           <div class="charts">
             <gs-telemetry-chart [readings]="readings()" metric="oilTempC"
-              [series]="{ label: 'Top-oil temperature', unit: '°C', color: '#f59e0b', warn: 95, alarm: 105 }" />
+              [series]="{ label: i18n.t('asset.chart.oil'), unit: '°C', color: '#f59e0b', warn: 95, alarm: 105 }" />
             <gs-telemetry-chart [readings]="readings()" metric="windingTempC"
-              [series]="{ label: 'Hottest-spot winding', unit: '°C', color: '#ef4444', warn: 110, alarm: 130 }" />
+              [series]="{ label: i18n.t('asset.chart.winding'), unit: '°C', color: '#ef4444', warn: 110, alarm: 130 }" />
             <gs-telemetry-chart [readings]="readings()" metric="loadFactor"
-              [series]="{ label: 'Load factor', unit: 'pu', color: '#7cdfff', warn: 1.0, alarm: 1.2 }" />
+              [series]="{ label: i18n.t('asset.chart.load'), unit: 'pu', color: '#7cdfff', warn: 1.0, alarm: 1.2 }" />
             <gs-telemetry-chart [readings]="readings()" metric="voltagePu"
-              [series]="{ label: 'Voltage', unit: 'pu', color: '#a78bfa' }" />
+              [series]="{ label: i18n.t('asset.chart.voltage'), unit: 'pu', color: '#a78bfa' }" />
             <gs-telemetry-chart [readings]="readings()" metric="dgaH2Ppm"
-              [series]="{ label: 'DGA H₂', unit: 'ppm', color: '#4ade80', warn: 100, alarm: 700 }" />
+              [series]="{ label: i18n.t('asset.chart.h2'), unit: 'ppm', color: '#4ade80', warn: 100, alarm: 700 }" />
             <gs-telemetry-chart [readings]="readings()" metric="dgaC2h2Ppm"
-              [series]="{ label: 'DGA C₂H₂ (acetylene)', unit: 'ppm', color: '#e8a45c', alarm: 5 }" />
+              [series]="{ label: i18n.t('asset.chart.c2h2'), unit: 'ppm', color: '#e8a45c', alarm: 5 }" />
           </div>
         } @else {
-          <gs-empty-state icon="hourglass_empty" title="Awaiting telemetry"
-            description="The simulator emits readings every 5 seconds. The first batch should arrive shortly." />
+          <gs-empty-state icon="hourglass_empty" [title]="i18n.t('asset.charts.empty.title')"
+            [description]="i18n.t('asset.charts.empty.desc')" />
         }
       </section>
 
       <section class="recommendation">
         <header class="section-head">
-          <span class="eyebrow">AI Maintenance · OpenRouter</span>
-          <h2>Structured maintenance recommendation</h2>
+          <span class="eyebrow">{{ i18n.t('asset.rec.eyebrow') }}</span>
+          <h2>{{ i18n.t('asset.rec.title') }}</h2>
           @if (models().length > 0) {
             <label class="model-pick">
-              <span class="lbl mono">MODEL</span>
+              <span class="lbl mono">{{ i18n.t('asset.rec.modelLabel') }}</span>
               <select [value]="selectedModel()" (change)="onModelChange($event)" [disabled]="recLoading()">
                 @for (m of models(); track m.id) {
                   <option [value]="m.id">{{ m.label }} · {{ m.hint }}</option>
@@ -134,10 +135,10 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
                   [disabled]="recLoading()" (click)="fetchRecommendation()">
             @if (recLoading()) {
               <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="13" [strokeWidth]="2"></i-lucide>
-              ANALYZING…
+              {{ i18n.t('asset.rec.btn.analyzing') }}
             } @else {
               <i-lucide [img]="SparkIcon" [size]="13" [strokeWidth]="1.8" aria-hidden="true"></i-lucide>
-              {{ recommendation() ? 'REGENERATE' : 'GENERATE' }}
+              {{ recommendation() ? i18n.t('asset.rec.btn.regenerate') : i18n.t('asset.rec.btn.generate') }}
             }
           </button>
         </header>
@@ -151,22 +152,22 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
             <div class="rec-meta">
               <gs-severity-badge [severity]="rec.urgency" />
               <span class="confidence">
-                <span class="lab">Confidence</span>
+                <span class="lab">{{ i18n.t('asset.rec.confidence') }}</span>
                 <strong>{{ rec.confidence * 100 | number: '1.0-0' }}%</strong>
               </span>
               <span class="source mono" [class.live]="rec.source === 'live'">
                 <i-lucide [img]="rec.source === 'live' ? LiveIcon : InertIcon" [size]="11" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-                {{ rec.source === 'live' ? (rec.model ?? 'LIVE') : 'DEMO FIXTURE' }}
+                {{ rec.source === 'live' ? (rec.model ?? i18n.t('asset.rec.live')) : i18n.t('asset.rec.fixture') }}
               </span>
             </div>
 
             <div class="rec-grid">
               <div class="rec-col">
-                <span class="eyebrow">Root cause</span>
+                <span class="eyebrow">{{ i18n.t('asset.rec.rootCause') }}</span>
                 <p>{{ rec.root_cause }}</p>
               </div>
               <div class="rec-col">
-                <span class="eyebrow">Recommended actions</span>
+                <span class="eyebrow">{{ i18n.t('asset.rec.actions') }}</span>
                 <ol class="actions">
                   @for (act of rec.recommended_actions; track $index) {
                     <li>
@@ -181,17 +182,13 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
 
             @if (rec.references && rec.references.length > 0) {
               <p class="refs">
-                <span class="eyebrow">References</span>
+                <span class="eyebrow">{{ i18n.t('asset.rec.references') }}</span>
                 <span>{{ rec.references.join(' · ') }}</span>
               </p>
             }
           </div>
         } @else if (!recLoading()) {
-          <p class="rec-hint">
-            Generate a recommendation to see structured maintenance guidance derived from the
-            current telemetry window and any open alerts. Backed by tool-use schema enforcement
-            against Claude (or hand-authored fixtures in the deployed demo).
-          </p>
+          <p class="rec-hint">{{ i18n.t('asset.rec.hint') }}</p>
         }
       </section>
     }
@@ -580,6 +577,7 @@ const MODEL_STORAGE_KEY = 'gs.rec.model';
 export class AssetDetailComponent {
   private readonly api = inject(ApiService);
   private readonly sse = inject(SseService);
+  protected readonly i18n = inject(LanguageService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly BackIcon = ArrowLeft;
@@ -701,9 +699,9 @@ export class AssetDetailComponent {
 
   protected typeLabel(t: Asset['assetType']): string {
     switch (t) {
-      case 'distribution_transformer': return 'Distribution Transformer';
-      case 'mv_lv_substation': return 'MV/LV Substation';
-      case 'feeder_breaker': return 'Feeder Breaker';
+      case 'distribution_transformer': return this.i18n.t('asset.type.distTransformerLong');
+      case 'mv_lv_substation': return this.i18n.t('asset.type.substationLong');
+      case 'feeder_breaker': return this.i18n.t('asset.type.feederBreakerLong');
     }
   }
 }

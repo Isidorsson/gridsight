@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { LucideAngularModule, FlaskConical, Github, ArrowUpRight } from 'lucide-angular';
+import { LanguageService } from '../core/i18n/language.service';
 
 @Component({
   selector: 'gs-demo-banner',
@@ -10,18 +11,11 @@ import { LucideAngularModule, FlaskConical, Github, ArrowUpRight } from 'lucide-
     <aside class="banner" role="note" aria-label="Demo mode notice">
       <div class="badge" aria-hidden="true">
         <i-lucide [img]="FlaskIcon" [size]="16" [strokeWidth]="1.8"></i-lucide>
-        <span>PORTFOLIO DEMO</span>
+        <span>{{ i18n.t('banner.tag') }}</span>
       </div>
       <div class="text">
-        <p>
-          Telemetry is simulated; AI maintenance recommendations are <strong>hand-authored fixtures</strong>,
-          not live LLM calls — the deployed demo intentionally ships without an OpenRouter API key.
-        </p>
-        <p class="sub">
-          The real OpenRouter integration (Claude Sonnet/Opus + GPT-5, tool-use schema enforced)
-          lives in <code>api/src/domain/recommender.ts</code> and runs locally when
-          <code>OPENROUTER_API_KEY</code> is set.
-        </p>
+        <p [innerHTML]="i18n.t('banner.body.html')"></p>
+        <p class="sub" [innerHTML]="i18n.t('banner.body.sub.html')"></p>
       </div>
       <a class="repo-link"
          href="https://github.com/Isidorsson/gridsight"
@@ -29,7 +23,7 @@ import { LucideAngularModule, FlaskConical, Github, ArrowUpRight } from 'lucide-
          rel="noopener noreferrer"
          aria-label="View source on GitHub">
         <i-lucide [img]="GithubIcon" [size]="14" [strokeWidth]="1.8" aria-hidden="true"></i-lucide>
-        <span>SOURCE</span>
+        <span>{{ i18n.t('banner.source') }}</span>
         <i-lucide [img]="ArrowIcon" [size]="12" [strokeWidth]="2" aria-hidden="true"></i-lucide>
       </a>
     </aside>
@@ -115,6 +109,7 @@ import { LucideAngularModule, FlaskConical, Github, ArrowUpRight } from 'lucide-
   ],
 })
 export class DemoBannerComponent {
+  protected readonly i18n = inject(LanguageService);
   protected readonly FlaskIcon = FlaskConical;
   protected readonly GithubIcon = Github;
   protected readonly ArrowIcon = ArrowUpRight;

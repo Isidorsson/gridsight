@@ -5,6 +5,7 @@ import { LucideAngularModule, Loader2, Filter, Check, Activity } from 'lucide-an
 import { Router } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { SseService } from '../../core/sse.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { AssetCardComponent } from '../../shared/asset-card.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import { FleetMapComponent } from '../../shared/fleet-map.component';
@@ -19,63 +20,59 @@ type FilterMode = 'all' | 'with_alerts';
   imports: [CommonModule, LucideAngularModule, AssetCardComponent, EmptyStateComponent, FleetMapComponent],
   template: `
     <section class="page-head">
-      <span class="eyebrow">Fleet · 02 Asset overview</span>
+      <span class="eyebrow">{{ i18n.t('dashboard.eyebrow') }}</span>
       <h1>
-        Real-time health of <span class="hl">{{ assets().length || '—' }}</span> distribution-grid assets
-        across the Solna metro area.
+        {{ i18n.t('dashboard.headline.prefix') }} <span class="hl">{{ assets().length || '—' }}</span> {{ i18n.t('dashboard.headline.suffix') }}
       </h1>
-      <p class="lede">
-        SCADA-style telemetry every five seconds, threshold rules referenced against
-        IEEE&nbsp;C57.91 and IEC&nbsp;60076, AI-authored maintenance recommendations.
-      </p>
+      <p class="lede">{{ i18n.t('dashboard.lede') }}</p>
     </section>
 
     <section class="status-board" aria-label="Fleet at a glance">
       <button type="button" class="stat" [class.active]="filter() === 'all'" (click)="filter.set('all')">
-        <span class="stat-label">Total assets</span>
+        <span class="stat-label">{{ i18n.t('dashboard.stat.total') }}</span>
         <span class="stat-value">{{ assets().length || '00' }}</span>
         <span class="stat-foot">
           <i-lucide [img]="filter() === 'all' ? CheckIcon : FilterIcon" [size]="11" [strokeWidth]="2"></i-lucide>
-          {{ filter() === 'all' ? 'showing all' : 'click to show all' }}
+          {{ filter() === 'all' ? i18n.t('dashboard.showingAll') : i18n.t('dashboard.showAll') }}
         </span>
       </button>
       <button type="button" class="stat alert" [class.active]="filter() === 'with_alerts'"
               [class.has]="assetsWithAlerts().length > 0" (click)="filter.set('with_alerts')">
-        <span class="stat-label">With open alerts</span>
+        <span class="stat-label">{{ i18n.t('dashboard.stat.openAlerts') }}</span>
         <span class="stat-value">{{ assetsWithAlerts().length || '00' }}</span>
         <span class="stat-foot">
           <i-lucide [img]="filter() === 'with_alerts' ? CheckIcon : FilterIcon" [size]="11" [strokeWidth]="2"></i-lucide>
-          {{ filter() === 'with_alerts' ? 'filtered' : 'click to filter' }}
+          {{ filter() === 'with_alerts' ? i18n.t('dashboard.filtered') : i18n.t('dashboard.clickFilter') }}
         </span>
       </button>
       <div class="stat tally">
-        <span class="stat-label">By severity</span>
+        <span class="stat-label">{{ i18n.t('dashboard.stat.bySeverity') }}</span>
         <div class="severity-tally">
           <span class="sev-dot critical" [class.zero]="!severityCounts().critical">
             <strong>{{ severityCounts().critical | number: '2.0-0' }}</strong>
-            <span>critical</span>
+            <span>{{ i18n.t('dashboard.sev.critical') }}</span>
           </span>
           <span class="sev-dot high" [class.zero]="!severityCounts().high">
             <strong>{{ severityCounts().high | number: '2.0-0' }}</strong>
-            <span>high</span>
+            <span>{{ i18n.t('dashboard.sev.high') }}</span>
           </span>
           <span class="sev-dot medium" [class.zero]="!severityCounts().medium">
             <strong>{{ severityCounts().medium | number: '2.0-0' }}</strong>
-            <span>medium</span>
+            <span>{{ i18n.t('dashboard.sev.medium') }}</span>
           </span>
           <span class="sev-dot low" [class.zero]="!severityCounts().low">
             <strong>{{ severityCounts().low | number: '2.0-0' }}</strong>
-            <span>low</span>
+            <span>{{ i18n.t('dashboard.sev.low') }}</span>
           </span>
         </div>
       </div>
       <div class="stat live">
-        <span class="stat-label">Stream</span>
+        <span class="stat-label">{{ i18n.t('dashboard.stat.stream') }}</span>
         <span class="stat-value live-value">
           <span class="ind" [class.on]="sse.connected()"></span>
-          {{ sse.connected() ? 'LIVE' : 'OFFLINE' }}
+          {{ sse.connected() ? i18n.t('dashboard.stream.live') : i18n.t('dashboard.stream.offline') }}
         </span>
-        <span class="stat-foot">{{ readingsReceived() | number: '1.0-0' }} readings rcvd</span>
+        <span class="stat-foot">{{ readingsReceived() | number: '1.0-0' }} {{ i18n.t('dashboard.readingsRcvd') }}</span>
       </div>
     </section>
 
@@ -85,21 +82,21 @@ type FilterMode = 'all' | 'with_alerts';
 
     <section class="page-body">
       <header class="section-head">
-        <span class="eyebrow">{{ filter() === 'with_alerts' ? 'Filtered' : 'All' }} · {{ visibleAssets().length | number: '2.0-0' }}</span>
-        <h2>{{ filter() === 'with_alerts' ? 'Assets requiring attention' : 'Asset roster' }}</h2>
+        <span class="eyebrow">{{ filter() === 'with_alerts' ? i18n.t('dashboard.section.filteredEyebrow') : i18n.t('dashboard.section.allEyebrow') }} · {{ visibleAssets().length | number: '2.0-0' }}</span>
+        <h2>{{ filter() === 'with_alerts' ? i18n.t('dashboard.section.title.attention') : i18n.t('dashboard.section.title.roster') }}</h2>
       </header>
 
       @if (loading()) {
         <div class="loading">
           <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="22" [strokeWidth]="1.6"></i-lucide>
-          <p class="mono">CONNECTING TO STREAM…</p>
+          <p class="mono">{{ i18n.t('dashboard.loading.connecting') }}</p>
         </div>
       } @else if (error()) {
-        <gs-empty-state icon="error_outline" [title]="'Could not load assets'" [description]="error()!" />
+        <gs-empty-state icon="error_outline" [title]="i18n.t('dashboard.empty.couldNotLoad')" [description]="error()!" />
       } @else if (visibleAssets().length === 0) {
         <gs-empty-state icon="check_circle"
-                        [title]="filter() === 'with_alerts' ? 'No active alerts' : 'No assets configured'"
-                        [description]="filter() === 'with_alerts' ? 'All monitored assets are operating within normal parameters.' : 'Seed the database to populate the fleet.'" />
+                        [title]="filter() === 'with_alerts' ? i18n.t('dashboard.empty.noAlerts') : i18n.t('dashboard.empty.noAssets')"
+                        [description]="filter() === 'with_alerts' ? i18n.t('dashboard.empty.noAlerts.desc') : i18n.t('dashboard.empty.noAssets.desc')" />
       } @else {
         <div class="grid">
           @for (a of visibleAssets(); track a.id; let i = $index) {
@@ -306,6 +303,7 @@ type FilterMode = 'all' | 'with_alerts';
 export class DashboardComponent {
   private readonly api = inject(ApiService);
   protected readonly sse = inject(SseService);
+  protected readonly i18n = inject(LanguageService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 

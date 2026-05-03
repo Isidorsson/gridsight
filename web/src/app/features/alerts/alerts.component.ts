@@ -6,6 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LucideAngularModule, Loader2, Check, ArrowUpRight } from 'lucide-angular';
 import { ApiService } from '../../core/api.service';
 import { SseService } from '../../core/sse.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { SeverityBadgeComponent } from '../../shared/severity-badge.component';
 import { EmptyStateComponent } from '../../shared/empty-state.component';
 import type { Alert } from '../../core/types';
@@ -25,12 +26,9 @@ type StatusFilter = 'open' | 'ack' | 'resolved' | 'all';
   ],
   template: `
     <section class="page-head">
-      <span class="eyebrow">Alerts · 04 Threshold rules</span>
-      <h1>Anomaly stream</h1>
-      <p class="lede">
-        Threshold-based rules referenced against IEEE&nbsp;C57.91 and IEC&nbsp;C57.104.
-        Acknowledge to silence; resolved alerts are kept for audit trail.
-      </p>
+      <span class="eyebrow">{{ i18n.t('alerts.eyebrow') }}</span>
+      <h1>{{ i18n.t('alerts.title') }}</h1>
+      <p class="lede">{{ i18n.t('alerts.lede') }}</p>
     </section>
 
     <div class="filter-bar" role="tablist" aria-label="Filter alerts by status">
@@ -50,12 +48,12 @@ type StatusFilter = 'open' | 'ack' | 'resolved' | 'all';
     @if (loading()) {
       <div class="loading">
         <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="22" [strokeWidth]="1.6"></i-lucide>
-        <p class="mono">SYNCHRONISING ALERT LOG…</p>
+        <p class="mono">{{ i18n.t('alerts.loading') }}</p>
       </div>
     } @else if (visible().length === 0) {
       <gs-empty-state icon="check_circle"
-                      [title]="status() === 'open' ? 'No active alerts' : 'No matching alerts'"
-                      [description]="'Switch filters to view past alerts.'" />
+                      [title]="status() === 'open' ? i18n.t('alerts.empty.noActive') : i18n.t('alerts.empty.noMatch')"
+                      [description]="i18n.t('alerts.empty.desc')" />
     } @else {
       <ul class="alerts">
         @for (al of visible(); track al.id) {
@@ -74,7 +72,7 @@ type StatusFilter = 'open' | 'ack' | 'resolved' | 'all';
               @if (al.status === 'ack' && al.ackedAt) {
                 <p class="meta">
                   <i-lucide [img]="CheckIcon" [size]="12" [strokeWidth]="2" aria-hidden="true"></i-lucide>
-                  acknowledged {{ al.ackedAt | date: 'short' }}{{ al.ackUser ? ' by ' + al.ackUser : '' }}
+                  {{ i18n.t('alerts.acked') }} {{ al.ackedAt | date: 'short' }}{{ al.ackUser ? ' ' + i18n.t('alerts.ackedBy') + ' ' + al.ackUser : '' }}
                 </p>
               }
             </div>
@@ -82,9 +80,9 @@ type StatusFilter = 'open' | 'ack' | 'resolved' | 'all';
               <button type="button" class="ack-btn" (click)="ack(al)" [disabled]="acking() === al.id">
                 @if (acking() === al.id) {
                   <i-lucide [img]="LoaderIcon" class="gs-spin" [size]="13" [strokeWidth]="2"></i-lucide>
-                  ACK…
+                  {{ i18n.t('alerts.btn.acking') }}
                 } @else {
-                  ACKNOWLEDGE
+                  {{ i18n.t('alerts.btn.ack') }}
                 }
               </button>
             } @else {
@@ -306,6 +304,7 @@ type StatusFilter = 'open' | 'ack' | 'resolved' | 'all';
 export class AlertsComponent {
   private readonly api = inject(ApiService);
   private readonly sse = inject(SseService);
+  protected readonly i18n = inject(LanguageService);
   private readonly snack = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -355,11 +354,15 @@ export class AlertsComponent {
     this.api.ackAlert(alert.id, 'demo-user').pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.all.set(this.all().map((a) => (a.id === updated.id ? updated : a)));
-        this.snack.open(`Alert acknowledged`, 'Dismiss', { duration: 2500 });
+        this.snack.open(this.i18n.t('alerts.snack.acked'), this.i18n.t('alerts.snack.dismiss'), { duration: 2500 });
         this.acking.set(null);
       },
       error: (err) => {
-        this.snack.open(`Failed to acknowledge: ${err?.error?.message ?? err.message}`, 'Dismiss', { duration: 4000 });
+        this.snack.open(
+          `${this.i18n.t('alerts.snack.ackFailed')}: ${err?.error?.message ?? err.message}`,
+          this.i18n.t('alerts.snack.dismiss'),
+          { duration: 4000 },
+        );
         this.acking.set(null);
       },
     });

@@ -19,6 +19,7 @@ import {
 } from 'lucide-angular';
 import { ApiService } from '../../core/api.service';
 import { SseService } from '../../core/sse.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { SparklineComponent } from '../../shared/sparkline.component';
 import type { Alert, Asset, ZoneSummary } from '../../core/types';
 
@@ -31,31 +32,25 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
     <section class="hero">
       <div class="hero-grid" aria-hidden="true"></div>
       <div class="hero-content">
-        <span class="eyebrow">GridSight · vertical-slice portfolio build · v0.2</span>
+        <span class="eyebrow">{{ i18n.t('show.eyebrow') }}</span>
         <h1>
-          Watch a distribution grid <span class="hl">breathe</span>.
-          <br/>One screen. Both sides of the meter.
+          {{ i18n.t('show.headline.prefix') }} <span class="hl">{{ i18n.t('show.headline.highlight') }}</span>{{ i18n.t('show.headline.suffix') }}
         </h1>
-        <p class="lede">
-          Real-time SCADA-style asset health for a fleet of substation transformers,
-          paired with a country-by-country view of the European generation mix and day-ahead
-          power market — built to show how a single observability story spans
-          asset operations and the wholesale grid.
-        </p>
+        <p class="lede">{{ i18n.t('show.lede') }}</p>
         <div class="cta-row">
           <a class="cta primary" routerLink="/fleet">
             <span class="cta-num">01</span>
             <span class="cta-body">
-              <strong>Open Fleet Health</strong>
-              <span class="sub">8 transformers · live telemetry · AI maintenance</span>
+              <strong>{{ i18n.t('show.cta.fleet.title') }}</strong>
+              <span class="sub">{{ i18n.t('show.cta.fleet.sub') }}</span>
             </span>
             <i-lucide [img]="ArrowRightIcon" [size]="14" [strokeWidth]="2"></i-lucide>
           </a>
           <a class="cta" routerLink="/grid">
             <span class="cta-num">02</span>
             <span class="cta-body">
-              <strong>Open European Grid</strong>
-              <span class="sub">10 bidding zones · ENTSO-E mix &amp; price</span>
+              <strong>{{ i18n.t('show.cta.grid.title') }}</strong>
+              <span class="sub">{{ i18n.t('show.cta.grid.sub') }}</span>
             </span>
             <i-lucide [img]="ArrowRightIcon" [size]="14" [strokeWidth]="2"></i-lucide>
           </a>
@@ -64,14 +59,14 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
         <div class="hero-meta mono">
           <span class="m">
             <span class="dot" [class.live]="sse.connected()"></span>
-            STREAM {{ sse.connected() ? 'LIVE' : 'RECONNECTING' }}
+            {{ sse.connected() ? i18n.t('show.meta.streamLive') : i18n.t('show.meta.streamReconnect') }}
           </span>
           <span class="sep">·</span>
-          <span>{{ readingsTotal() | number: '1.0-0' }} TELEMETRY READINGS</span>
+          <span>{{ readingsTotal() | number: '1.0-0' }} {{ i18n.t('show.meta.readings') }}</span>
           <span class="sep">·</span>
-          <span>{{ openAlertCount() }} OPEN ALERTS</span>
+          <span>{{ openAlertCount() }} {{ i18n.t('show.meta.openAlerts') }}</span>
           <span class="sep">·</span>
-          <span>BUILT IN STOCKHOLM</span>
+          <span>{{ i18n.t('show.meta.builtIn') }}</span>
         </div>
       </div>
     </section>
@@ -81,27 +76,27 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
         <header>
           <span class="eyebrow">
             <i-lucide [img]="RadarIcon" [size]="11" [strokeWidth]="2"></i-lucide>
-            Fleet
+            {{ i18n.t('show.tile.fleet') }}
           </span>
           <a class="more" routerLink="/fleet">
-            VIEW <i-lucide [img]="ArrowRightIcon" [size]="11" [strokeWidth]="2"></i-lucide>
+            {{ i18n.t('show.tile.view') }} <i-lucide [img]="ArrowRightIcon" [size]="11" [strokeWidth]="2"></i-lucide>
           </a>
         </header>
         <div class="tile-body">
           <div class="big">
             <span class="num">{{ assetCount() | number: '2.0-0' }}</span>
-            <span class="lbl">monitored assets</span>
+            <span class="lbl">{{ i18n.t('show.tile.fleet.assets') }}</span>
           </div>
           <ul class="severity-list">
-            <li><span class="dot critical"></span><strong>{{ severityCounts().critical | number: '2.0-0' }}</strong> critical</li>
-            <li><span class="dot high"></span><strong>{{ severityCounts().high | number: '2.0-0' }}</strong> high</li>
-            <li><span class="dot medium"></span><strong>{{ severityCounts().medium | number: '2.0-0' }}</strong> medium</li>
-            <li><span class="dot low"></span><strong>{{ severityCounts().low | number: '2.0-0' }}</strong> low</li>
+            <li><span class="dot critical"></span><strong>{{ severityCounts().critical | number: '2.0-0' }}</strong> {{ i18n.t('dashboard.sev.critical') }}</li>
+            <li><span class="dot high"></span><strong>{{ severityCounts().high | number: '2.0-0' }}</strong> {{ i18n.t('dashboard.sev.high') }}</li>
+            <li><span class="dot medium"></span><strong>{{ severityCounts().medium | number: '2.0-0' }}</strong> {{ i18n.t('dashboard.sev.medium') }}</li>
+            <li><span class="dot low"></span><strong>{{ severityCounts().low | number: '2.0-0' }}</strong> {{ i18n.t('dashboard.sev.low') }}</li>
           </ul>
         </div>
         <footer>
           <gs-sparkline [values]="readingsRate()" color="var(--gs-accent)" ariaLabel="Telemetry rate sparkline" />
-          <span class="footnote mono">readings/5s · last 30 ticks</span>
+          <span class="footnote mono">{{ i18n.t('show.tile.fleet.foot') }}</span>
         </footer>
       </article>
 
@@ -109,30 +104,30 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
         <header>
           <span class="eyebrow">
             <i-lucide [img]="GlobeIcon" [size]="11" [strokeWidth]="2"></i-lucide>
-            European grid
+            {{ i18n.t('show.tile.grid') }}
           </span>
           <a class="more" routerLink="/grid">
-            VIEW <i-lucide [img]="ArrowRightIcon" [size]="11" [strokeWidth]="2"></i-lucide>
+            {{ i18n.t('show.tile.view') }} <i-lucide [img]="ArrowRightIcon" [size]="11" [strokeWidth]="2"></i-lucide>
           </a>
         </header>
         <div class="tile-body">
           @if (greenestZone(); as g) {
             <div class="big">
               <span class="num">{{ g.fossilFreeShare * 100 | number: '1.1-1' }}<em>%</em></span>
-              <span class="lbl">cleanest right now · {{ flagEmoji(g.country) }} {{ shortZone(g.label) }}</span>
+              <span class="lbl">{{ i18n.t('show.tile.grid.cleanest') }} {{ flagEmoji(g.country) }} {{ shortZone(g.label) }}</span>
             </div>
           }
           @if (dirtiestZone(); as d) {
             <ul class="vs-list">
               <li>
-                <span class="vs-lab">vs. dirtiest</span>
+                <span class="vs-lab">{{ i18n.t('show.tile.grid.vs') }}</span>
                 <strong>{{ d.fossilFreeShare * 100 | number: '1.0-1' }}%</strong>
                 <span class="vs-zone">{{ flagEmoji(d.country) }} {{ shortZone(d.label) }}</span>
               </li>
               <li>
-                <span class="vs-lab">price spread</span>
+                <span class="vs-lab">{{ i18n.t('show.tile.grid.spread') }}</span>
                 <strong>{{ priceSpread() | number: '1.0-0' }} €/MWh</strong>
-                <span class="vs-zone">across {{ summaries().length }} zones</span>
+                <span class="vs-zone">{{ i18n.t('show.tile.grid.zonesAcross') }} {{ summaries().length }} {{ i18n.t('show.tile.grid.zonesSuffix') }}</span>
               </li>
             </ul>
           }
@@ -148,7 +143,7 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
                     [title]="z.label + ' — ' + (z.fossilFreeShare * 100).toFixed(0) + '%'"></span>
             }
           </div>
-          <span class="footnote mono">fossil-free share · per zone</span>
+          <span class="footnote mono">{{ i18n.t('show.tile.grid.foot') }}</span>
         </footer>
       </article>
 
@@ -156,17 +151,14 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
         <header>
           <span class="eyebrow">
             <i-lucide [img]="SparkIcon" [size]="11" [strokeWidth]="2"></i-lucide>
-            AI Maintenance
+            {{ i18n.t('show.tile.ai') }}
           </span>
           <a class="more" routerLink="/fleet">
-            TRY <i-lucide [img]="ArrowRightIcon" [size]="11" [strokeWidth]="2"></i-lucide>
+            {{ i18n.t('show.tile.try') }} <i-lucide [img]="ArrowRightIcon" [size]="11" [strokeWidth]="2"></i-lucide>
           </a>
         </header>
         <div class="tile-body">
-          <p class="ai-line">
-            Anthropic Claude with <strong>tool-use schema</strong> enforcement —
-            structured maintenance recommendations from current telemetry + open alerts.
-          </p>
+          <p class="ai-line" [innerHTML]="i18n.t('show.tile.ai.body.html')"></p>
           <div class="ai-tags">
             <span class="tag">function_calling</span>
             <span class="tag">claude-sonnet-4.6</span>
@@ -176,7 +168,7 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
           </div>
         </div>
         <footer>
-          <span class="footnote mono">OPENROUTER_API_KEY=&lt;present&gt; → live · else fixture</span>
+          <span class="footnote mono">{{ i18n.t('show.tile.ai.foot') }}</span>
         </footer>
       </article>
 
@@ -184,7 +176,7 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
         <header>
           <span class="eyebrow">
             <i-lucide [img]="ServerIcon" [size]="11" [strokeWidth]="2"></i-lucide>
-            Architecture
+            {{ i18n.t('show.tile.arch') }}
           </span>
         </header>
         <div class="tile-body">
@@ -217,8 +209,8 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
 
     <section class="features">
       <header class="section-head">
-        <span class="eyebrow">What's in the box</span>
-        <h2>Two full vertical slices, one design language</h2>
+        <span class="eyebrow">{{ i18n.t('show.feat.eyebrow') }}</span>
+        <h2>{{ i18n.t('show.feat.title') }}</h2>
       </header>
 
       <div class="feat-grid">
@@ -226,22 +218,16 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
           <header>
             <span class="feat-num mono">01</span>
             <i-lucide [img]="ActivityIcon" [size]="18" [strokeWidth]="1.7" aria-hidden="true"></i-lucide>
-            <h3>Asset performance &amp; anomaly monitor</h3>
+            <h3>{{ i18n.t('show.feat1.title') }}</h3>
           </header>
-          <p>
-            Simulated SCADA telemetry — top-oil temperature, hottest-spot winding, load factor,
-            voltage, dissolved gases — emitted every five seconds, persisted to SQLite, streamed
-            over Server-Sent Events. Threshold rules referenced against
-            <strong>IEEE C57.91</strong> raise alerts; an Anthropic Claude integration converts
-            telemetry windows + open alerts into structured maintenance recommendations.
-          </p>
+          <p [innerHTML]="i18n.t('show.feat1.body.html')"></p>
           <ul class="bullets">
-            <li><span class="b-num">·</span>SVG charts, no chart library — fast, themeable, accessible.</li>
-            <li><span class="b-num">·</span>Real SSE auto-reconnect with exponential backoff.</li>
-            <li><span class="b-num">·</span>OpenAPI 3.1 spec at <code>/openapi</code>, Prometheus at <code>/metrics</code>.</li>
+            <li><span class="b-num">·</span>{{ i18n.t('show.feat1.bullet1') }}</li>
+            <li><span class="b-num">·</span>{{ i18n.t('show.feat1.bullet2') }}</li>
+            <li><span class="b-num">·</span><span [innerHTML]="i18n.t('show.feat1.bullet3.html')"></span></li>
           </ul>
           <a class="feat-cta" routerLink="/fleet">
-            Open the fleet view
+            {{ i18n.t('show.feat1.cta') }}
             <i-lucide [img]="ArrowRightIcon" [size]="13" [strokeWidth]="2"></i-lucide>
           </a>
         </article>
@@ -250,23 +236,16 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
           <header>
             <span class="feat-num mono">02</span>
             <i-lucide [img]="LeafIcon" [size]="18" [strokeWidth]="1.7" aria-hidden="true"></i-lucide>
-            <h3>European grid · live mix &amp; market</h3>
+            <h3>{{ i18n.t('show.feat2.title') }}</h3>
           </header>
-          <p>
-            Generation mix per fuel type and 24-hour day-ahead price, sourced live from the
-            <strong>Energy-Charts API</strong> (Fraunhofer ISE). Compare a hydro/nuclear
-            backbone (Sweden, Norway, France) to fossil-heavy markets (Poland, Netherlands).
-            A deterministic synthetic backend ships alongside the live client — switch
-            <code>auto / live / mock</code> on the page itself to see the same UI render
-            either source.
-          </p>
+          <p [innerHTML]="i18n.t('show.feat2.body.html')"></p>
           <ul class="bullets">
-            <li><span class="b-num">·</span>Headline KPI: fossil-free share, with cross-zone comparison.</li>
-            <li><span class="b-num">·</span>Day-ahead price chart with min / avg / max + spread.</li>
-            <li><span class="b-num">·</span>5-minute in-process cache; live errors fall back to mock automatically.</li>
+            <li><span class="b-num">·</span>{{ i18n.t('show.feat2.bullet1') }}</li>
+            <li><span class="b-num">·</span>{{ i18n.t('show.feat2.bullet2') }}</li>
+            <li><span class="b-num">·</span>{{ i18n.t('show.feat2.bullet3') }}</li>
           </ul>
           <a class="feat-cta" routerLink="/grid">
-            Open the grid view
+            {{ i18n.t('show.feat2.cta') }}
             <i-lucide [img]="ArrowRightIcon" [size]="13" [strokeWidth]="2"></i-lucide>
           </a>
         </article>
@@ -275,8 +254,8 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
 
     <section class="stack">
       <header class="section-head">
-        <span class="eyebrow">Tech stack</span>
-        <h2>Pragmatic, current, no dead weight</h2>
+        <span class="eyebrow">{{ i18n.t('show.stack.eyebrow') }}</span>
+        <h2>{{ i18n.t('show.stack.title') }}</h2>
       </header>
       <ul class="badges">
         <li><i-lucide [img]="TriangleIcon" [size]="13" [strokeWidth]="1.8"></i-lucide> Angular 18 · standalone · signals</li>
@@ -291,19 +270,15 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
     </section>
 
     <section class="closer">
-      <h2>Designed for distribution-grid operators.</h2>
-      <p>
-        Built as a portfolio piece by Isidor Sson — based in Stockholm, working in
-        Angular &amp; TypeScript, comfortable across the stack from substation telemetry to
-        wholesale-market data.
-      </p>
+      <h2>{{ i18n.t('show.closer.title') }}</h2>
+      <p>{{ i18n.t('show.closer.body') }}</p>
       <div class="closer-row">
         <a class="cta primary" href="https://github.com/Isidorsson/gridsight" target="_blank" rel="noopener">
-          View on GitHub
+          {{ i18n.t('show.closer.cta.github') }}
           <i-lucide [img]="ArrowRightIcon" [size]="13" [strokeWidth]="2"></i-lucide>
         </a>
         <a class="cta" routerLink="/alerts">
-          See active alerts
+          {{ i18n.t('show.closer.cta.alerts') }}
           <i-lucide [img]="ArrowRightIcon" [size]="13" [strokeWidth]="2"></i-lucide>
         </a>
       </div>
@@ -757,6 +732,7 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
 export class ShowcaseComponent {
   private readonly api = inject(ApiService);
   protected readonly sse = inject(SseService);
+  protected readonly i18n = inject(LanguageService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly ActivityIcon = Activity;

@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SeverityBadgeComponent } from './severity-badge.component';
 import { SparklineComponent } from './sparkline.component';
 import { SseService } from '../core/sse.service';
+import { LanguageService } from '../core/i18n/language.service';
 import type { Alert, Asset, TelemetryReading } from '../core/types';
 
 @Component({
@@ -33,26 +34,26 @@ import type { Alert, Asset, TelemetryReading } from '../core/types';
             <gs-severity-badge [severity]="highestSeverity()!" />
           } @else {
             <span class="badge ok">
-              <span class="dot"></span>nominal
+              <span class="dot"></span>{{ i18n.t('card.nominal') }}
             </span>
           }
         </header>
 
         <dl class="meta">
           <div>
-            <dt>Rating</dt>
+            <dt>{{ i18n.t('card.rating') }}</dt>
             <dd>{{ ratingLabel() }}</dd>
           </div>
           <div>
-            <dt>Voltage</dt>
+            <dt>{{ i18n.t('card.voltage') }}</dt>
             <dd>{{ asset().primaryVoltageKv }}/{{ asset().secondaryVoltageKv }} kV</dd>
           </div>
           <div>
-            <dt>Cool</dt>
+            <dt>{{ i18n.t('card.cool') }}</dt>
             <dd>{{ asset().coolingClass }}</dd>
           </div>
           <div class="loc">
-            <dt>Location</dt>
+            <dt>{{ i18n.t('card.location') }}</dt>
             <dd>{{ asset().locationName }}</dd>
           </div>
         </dl>
@@ -60,19 +61,19 @@ import type { Alert, Asset, TelemetryReading } from '../core/types';
         @if (latest(); as r) {
           <div class="readings">
             <div class="reading">
-              <span>Oil</span>
+              <span>{{ i18n.t('card.oil') }}</span>
               <strong [class.warn]="r.oilTempC >= 95" [class.alarm]="r.oilTempC >= 105">
                 {{ r.oilTempC | number: '1.0-1' }}<em>°C</em>
               </strong>
             </div>
             <div class="reading">
-              <span>Winding</span>
+              <span>{{ i18n.t('card.winding') }}</span>
               <strong [class.warn]="r.windingTempC >= 110" [class.alarm]="r.windingTempC >= 130">
                 {{ r.windingTempC | number: '1.0-1' }}<em>°C</em>
               </strong>
             </div>
             <div class="reading">
-              <span>Load</span>
+              <span>{{ i18n.t('card.load') }}</span>
               <strong [class.warn]="r.loadFactor >= 1.0" [class.alarm]="r.loadFactor >= 1.2">
                 {{ r.loadFactor * 100 | number: '1.0-0' }}<em>%</em>
               </strong>
@@ -85,13 +86,13 @@ import type { Alert, Asset, TelemetryReading } from '../core/types';
                             [warn]="95"
                             [alarm]="105"
                             ariaLabel="Top-oil temperature history" />
-              <span class="spark-label">{{ oilHistory().length }} ticks</span>
+              <span class="spark-label">{{ oilHistory().length }} {{ i18n.t('card.ticks') }}</span>
             </div>
           }
         } @else {
           <div class="readings empty">
             <i-lucide [img]="HourglassIcon" [size]="13" [strokeWidth]="1.6" aria-hidden="true"></i-lucide>
-            awaiting first reading…
+            {{ i18n.t('card.awaiting') }}
           </div>
         }
       </div>
@@ -316,6 +317,7 @@ export class AssetCardComponent {
   readonly index = input<number>(0);
 
   private readonly sse = inject(SseService);
+  protected readonly i18n = inject(LanguageService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly HourglassIcon = Hourglass;
@@ -340,9 +342,9 @@ export class AssetCardComponent {
 
   readonly typeLabel = computed(() => {
     switch (this.asset().assetType) {
-      case 'distribution_transformer': return 'Dist. Transformer';
-      case 'mv_lv_substation': return 'Substation';
-      case 'feeder_breaker': return 'Feeder Breaker';
+      case 'distribution_transformer': return this.i18n.t('card.type.distTransformer');
+      case 'mv_lv_substation': return this.i18n.t('card.type.substation');
+      case 'feeder_breaker': return this.i18n.t('card.type.feederBreaker');
     }
   });
 

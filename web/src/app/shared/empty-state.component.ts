@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import {
   LucideAngularModule,
   Inbox,
@@ -7,6 +7,7 @@ import {
   Hourglass,
   type LucideIconData,
 } from 'lucide-angular';
+import { LanguageService } from '../core/i18n/language.service';
 
 const ICONS: Record<string, LucideIconData> = {
   inbox: Inbox,
@@ -67,6 +68,8 @@ const ICONS: Record<string, LucideIconData> = {
   ],
 })
 export class EmptyStateComponent {
+  private readonly i18n = inject(LanguageService);
+
   readonly icon = input<string>('inbox');
   readonly title = input.required<string>();
   readonly description = input<string | null>(null);
@@ -74,10 +77,10 @@ export class EmptyStateComponent {
   readonly iconData = computed<LucideIconData>(() => ICONS[this.icon()] ?? Inbox);
   readonly tag = computed(() => {
     switch (this.icon()) {
-      case 'check_circle': return 'Status · Nominal';
-      case 'error_outline': return 'Status · Fault';
-      case 'hourglass_empty': return 'Status · Awaiting';
-      default: return 'Status';
+      case 'check_circle': return this.i18n.t('empty.status.nominal');
+      case 'error_outline': return this.i18n.t('empty.status.fault');
+      case 'hourglass_empty': return this.i18n.t('empty.status.awaiting');
+      default: return this.i18n.t('empty.status.default');
     }
   });
 }

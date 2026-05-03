@@ -3,13 +3,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval, startWith } from 'rxjs';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SseService } from './core/sse.service';
+import { LanguageService } from './core/i18n/language.service';
 import { DemoBannerComponent } from './shared/demo-banner.component';
+import { LanguagePickerComponent } from './shared/language-picker.component';
 
 @Component({
   selector: 'gs-root',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, DemoBannerComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, DemoBannerComponent, LanguagePickerComponent],
   template: `
     <header class="app-header">
       <div class="rail-left">
@@ -20,32 +22,33 @@ import { DemoBannerComponent } from './shared/demo-banner.component';
           </svg>
           <span class="brand-words">
             <strong>GridSight</strong>
-            <span class="sub">Substation Asset Health · v0.1</span>
+            <span class="sub">{{ i18n.t('app.brand.sub') }}</span>
           </span>
         </a>
         <nav class="app-nav" aria-label="Primary">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-            <span class="hash">00</span> Showcase
+            <span class="hash">00</span> {{ i18n.t('nav.showcase') }}
           </a>
           <a routerLink="/fleet" routerLinkActive="active">
-            <span class="hash">01</span> Fleet
+            <span class="hash">01</span> {{ i18n.t('nav.fleet') }}
           </a>
           <a routerLink="/grid" routerLinkActive="active">
-            <span class="hash">02</span> Grid
+            <span class="hash">02</span> {{ i18n.t('nav.grid') }}
           </a>
           <a routerLink="/alerts" routerLinkActive="active">
-            <span class="hash">03</span> Alerts
+            <span class="hash">03</span> {{ i18n.t('nav.alerts') }}
           </a>
         </nav>
       </div>
 
       <div class="rail-right">
-        <span class="env-pill" title="Build environment">DEMO · STOCKHOLM</span>
+        <span class="env-pill" title="Build environment">{{ i18n.t('app.env.demo') }}</span>
         <span class="clock mono" aria-label="Current time">{{ now() }}</span>
         <span class="status" [class.connected]="sse.connected()" [attr.aria-live]="'polite'">
           <span class="dot" aria-hidden="true"></span>
-          <span class="status-label">{{ sse.connected() ? 'STREAM LIVE' : 'RECONNECTING' }}</span>
+          <span class="status-label">{{ sse.connected() ? i18n.t('app.stream.live') : i18n.t('app.stream.reconnecting') }}</span>
         </span>
+        <gs-language-picker />
       </div>
     </header>
 
@@ -69,9 +72,9 @@ import { DemoBannerComponent } from './shared/demo-banner.component';
     </main>
 
     <footer class="app-foot">
-      <span>GridSight · vertical-slice portfolio build</span>
+      <span>{{ i18n.t('footer.tagline') }}</span>
       <span class="dot-sep">·</span>
-      <span>Designed for distribution-grid operators</span>
+      <span>{{ i18n.t('footer.subtagline') }}</span>
       <span class="dot-sep">·</span>
       <a href="https://github.com/Isidorsson/gridsight" target="_blank" rel="noopener noreferrer">github.com/Isidorsson/gridsight</a>
     </footer>
@@ -268,6 +271,7 @@ import { DemoBannerComponent } from './shared/demo-banner.component';
 })
 export class AppComponent {
   protected readonly sse = inject(SseService);
+  protected readonly i18n = inject(LanguageService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly now = signal(this.formatNow());
