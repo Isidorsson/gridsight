@@ -696,7 +696,7 @@ export class AssetDetailComponent {
       const v = localStorage.getItem(MODEL_STORAGE_KEY);
       if (v && v.length > 0) return v;
     } catch { /* private mode etc — non-fatal */ }
-    return 'anthropic/claude-sonnet-4.5';
+    return 'anthropic/claude-sonnet-4.6';
   }
 
   protected typeLabel(t: Asset['assetType']): string {

@@ -15,7 +15,7 @@ const EnvSchema = z.object({
     z.string().optional(),
   ),
   OPENROUTER_BASE_URL: trimmed(z.string().min(1)).default('https://openrouter.ai/api/v1'),
-  OPENROUTER_DEFAULT_MODEL: trimmed(z.string().min(1)).default('anthropic/claude-sonnet-4.5'),
+  OPENROUTER_DEFAULT_MODEL: trimmed(z.string().min(1)).default('anthropic/claude-sonnet-4.6'),
   ENERGY_CHARTS_BASE: trimmed(z.string().min(1)).default('https://api.energy-charts.info'),
   NODE_ENV: z.preprocess(
     (v) => (typeof v === 'string' ? v.trim() : v),

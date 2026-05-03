@@ -55,10 +55,10 @@ export interface ModelOption {
  * IDs follow OpenRouter's `<vendor>/<model>` namespace.
  */
 export const MODEL_OPTIONS: ReadonlyArray<ModelOption> = [
-  { id: 'anthropic/claude-sonnet-4.5', label: 'Claude Sonnet 4.5', vendor: 'anthropic', hint: 'Fast · default' },
-  { id: 'anthropic/claude-opus-4.1', label: 'Claude Opus 4.1', vendor: 'anthropic', hint: 'Deepest reasoning' },
-  { id: 'openai/gpt-5', label: 'GPT-5', vendor: 'openai', hint: 'OpenAI flagship' },
-  { id: 'openai/gpt-5-mini', label: 'GPT-5 mini', vendor: 'openai', hint: 'Cheap · fast' },
+  { id: 'anthropic/claude-sonnet-4.6', label: 'Claude Sonnet 4.6', vendor: 'anthropic', hint: 'Fast · default' },
+  { id: 'anthropic/claude-opus-4.7', label: 'Claude Opus 4.7', vendor: 'anthropic', hint: 'Deepest reasoning' },
+  { id: 'openai/gpt-5.5', label: 'GPT-5.5', vendor: 'openai', hint: 'OpenAI flagship' },
+  { id: 'openai/gpt-5.4-mini', label: 'GPT-5.4 mini', vendor: 'openai', hint: 'Cheap · fast' },
 ];
 
 const MODEL_IDS = new Set(MODEL_OPTIONS.map((m) => m.id));

@@ -169,8 +169,8 @@ import type { Alert, Asset, ZoneSummary } from '../../core/types';
           </p>
           <div class="ai-tags">
             <span class="tag">function_calling</span>
-            <span class="tag">claude-sonnet-4.5</span>
-            <span class="tag">gpt-5</span>
+            <span class="tag">claude-sonnet-4.6</span>
+            <span class="tag">gpt-5.5</span>
             <span class="tag">JSON-validated</span>
             <span class="tag">fixture fallback</span>
           </div>
