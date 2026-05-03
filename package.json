@@ -1,0 +1,16 @@
+{
+  "name": "gridsight",
+  "version": "0.2.0",
+  "private": true,
+  "description": "GridSight — distribution-grid asset health + European grid mix. Root scripts orchestrate api/ and web/.",
+  "scripts": {
+    "install:all": "npm install && npm --prefix api install && npm --prefix web install",
+    "dev": "concurrently --kill-others-on-fail --names api,web --prefix-colors yellow,cyan \"npm --prefix api run dev\" \"npm --prefix web start\"",
+    "build": "npm --prefix api run build && npm --prefix web run build",
+    "typecheck": "npm --prefix api run typecheck && npm --prefix web run typecheck",
+    "start": "concurrently --kill-others-on-fail --names api,web --prefix-colors yellow,cyan \"npm --prefix api start\" \"npm --prefix web start\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
